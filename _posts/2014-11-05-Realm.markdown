@@ -1,0 +1,160 @@
+---
+layout: post
+title:  Mobile Database: Realm
+date:   2014-11-05 23:45:52
+categories: personal
+---
+[上一篇博文][jowyer blog mantle]讲了数据持久化，这一篇就接着讲讲数据库。
+
+为什么要使用数据库？当有下面这些需求的时候，就应该考虑在app本地做数据库了：
+
+* Exectute queries locally and provide a better search and browsing experience
+* Provide an offline experience
+* Reduce server-side load by only fetching new or changed data
+* Handle a huge object graph with lots of relationships
+* Support undo and redo
+
+在iOS上使用数据库，通常是[SQLite][sqlite url]，[Core Data][core data url]，和[Core Data Libraries][core data libraries nshipster]。
+
+今天要介绍的**Realm**，号称要取代*SQLite*和*Core Data*。目前已支持*iOS*, *OS X*, *Android*平台，并且支持*Swift*语言。
+
+## ORM
+在介绍Realm之前，还是先讲两个概念。第一个，ORM：
+
+> Object-relational mapping is a technique that connects the rich objects of an application to tables in a relational database management system. Using ORM, the properties and relationships of the objects in an application can be easily stored and retrieved from a database without writing SQL statements directly and with less overall database access code.
+
+ORM中文解释为 对象/关系型数据映射，作用是把 对象模型 和 关系型数据库的表 建立对应关系。
+
+在实际开发中，程序员使用面向对象的技术操作数据，而当要把数据存储起来时，使用的却是关系型数据库，这样就造成了很多的不便。ORM在对象模型和关系数据库的表之间建立了一座桥梁，有了它，程序员就不需要再使用SQL语句操作数据库中的表，直接操作对象就可以实现数据的存储、查询、更改和删除等操作。
+
+## Active Record Pattern
+从Ruby语言的[Active Record Pattern][Ruby Active Record Basics]受到启发，不少第三方类库都以此来为iOS实现了ORM。
+
+> In Active Record, objects carry both persistent data and behavior which operates on that data. Active Record takes the opinion that ensuring data access logic is part of the object will educate users of that object on how to write to and read from the database.
+
+简单的说，就是将`表`映射到`类`，将`行记录`映射到`实例对象`，将`字段`映射到对象的`属性`。
+
+用Active Record来构架ORM，会有如下这些好处：
+
+* Represent models and their data.
+* Represent associations between these models.
+* Represent inheritance hierarchies through related models.
+* Validate models before they get persisted to the database.
+* Perform database operations in an object-oriented fashion.
+
+[Magical Record][Magical Record github]和**Realm**正是如此实现的，所不同的是[Magical Record][Magical Record github]的背后是Core Data，而**Realm**的后台则是操作自己的数据库。
+
+
+## Realm
+> [Realm][realm url] is a mobile database: a replacement for SQLite & Core Data.
+
+终于说到正主了，下面是一些核心的概念。
+
+安装步骤和详细的文档请移步[Realm 官方文档][realm doc url]。API文档位于[Realm API][realm api url]。
+
+### RLMRealm
+RLMRealm is the heart of the framework; it’s your access point to the underlying database, similar to a Core Data managed object context. For your coding convenience, there’s a singleton `defaultRealm`.
+
+### RLMObject
+This is your realm model. The act of creating a model defines the schema of the database; to create a model you simply subclass `RLMObject` and define the **fields** you want to persist as **properties**.
+
+实际就是设计数据库表。
+
+### Relationships
+You create one-to-many relationships between objects by simply declaring a **property** of the type of the `RLMObject` you want to refer to. You can create many-to-one and many-to-many relationships via a **property** of type `RLMArray`.
+
+### RLMArray
+This class has an API similar to that of `NSArray`; you can use it to store multiple `RLMObject` instances and define relationships. Its has other hidden powers, too; it can sort `RLMObject` instances, query the database, and can perform aggregate queries.
+
+### Write Transactions
+Any operations in the database such as creating, editing, or deleting objects must be performed within **transactions** which are delineated by the `beginWriteTransaction()` and `commitWriteTransaction()` operations.
+
+所有增删改的操作都要在这两句代码中间完成。
+
+{% highlight swift %}
+func updateSpecimen() {
+let realm = RLMRealm.defaultRealm()
+realm.beginWriteTransaction()
+
+specimen.name = nameTextField.text
+specimen.category = selectedCategory
+specimen.specimenDescription = descriptionTextField.text
+
+realm.commitWriteTransaction()
+}
+{% endhighlight %}
+
+### Queries
+To retrieve objects from the database you’ll need to use queries. The simplest form of a query is calling `allObjects()` on an `RLMObject`. If your data retrieval needs are more complex you can make use of **predicates**, chain your queries, and order your results as well.
+
+### Ignored Properties
+> You want the `distance` as part of the model, but you don’t want Realm to persist the field.
+
+Realm supports properties like this and calls them **ignored properties**.
+To define your list of ignored property you simply implement the method `ignoredProperties()` and return an **array** of properties that you don’t want persisted.
+
+对于不在Realm数据库中保存的字段，却想其作为RLMObject的属性而存在。这种情况时，就使用**ignored properties**。
+
+{% highlight swift %}
+dynamic var distance: Double = 0
+func ignoredProperties() -> NSArray {
+let propertiesToIgnore = [distance]
+return propertiesToIgnore
+}
+{% endhighlight %}
+
+### Realm Path
+Realm数据库在app中存放的路径，通过下面这行语句可以找到，用**Realm Browser**打开：
+
+{% highlight swift %}
+println(RLMRealm.defaultRealm().path)
+{% endhighlight %}
+
+## Realm Object 与 Mantle Object的差异
+Realm Object：`RLMObject`和[上一篇博文][jowyer blog mantle]提到的Mantle Object：`MTLModel`都适合用来构架app的**model**层，下面来看看它们的差异。
+
+### 数据持久化
+* `RLMObject`没有实现`<NSCoding>`协议，但是直接与Realm数据库交互，在Realm数据库中完成持久化。
+* `MTLModel`实现了`<NSCoding>`协议，具备持久化的可能，后续可以在`Core Data`，`NSKeyedArchiver`或者数据库中完成持久化。
+
+### Copyable
+* `RLMObject`没有实现`<NSCopying>`协议，不能`copy`。
+* `MTLModel`实现了`<NSCopying>`协议，该类及其子类都可以进行`copy`操作。
+
+### JSON交互
+* `RLMObject`官方提供了[示例][realm rest-apis]，通过构造一个`RLMObject`，其结构、属性名称和`JSON`的结构、键值完全一样，则可以用`[RLMObject createOrUpdateInDefaultRealmWithObject:]`方法来更新。缺点是`RLMObject`的属性名必须和服务器端的完全一样。
+* `MTLModel`通过实现`<MTLJSONSerializing>`协议，则可以方便的实现`MTLModel`属性名与服务器端属性名的映射，`MTLModel`对象与`JSON`格式的双向序列化方法。
+
+### 概括
+可以看出，如果不需要数据库的支持，那么用Mantle Object更方便一些。
+
+反之如果要使用数据库，则Realm Object天生就可以和自己的数据库相连；如果还想实现类似Mantle Object的`Copyable`，易于`JSON交互`的特性，则可以引入第三方库[Realm-JSON][realm json github]。
+
+
+
+
+
+
+
+## Reference
+[Raywenderlich][raywenderlich realm]
+
+[GitHub][github realm]
+
+[中文介绍][realm chinese]
+
+[jowyer blog mantle]: http://jowyer.github.io/personal/2014/11/03/Mantle.html
+[sqlite url]: http://www.sqlite.org/
+[core data url]: https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/CoreData/cdProgrammingGuide.html
+[core data libraries nshipster]: http://nshipster.com/core-data-libraries-and-utilities/
+[Ruby Active Record Basics]: http://guides.rubyonrails.org/active_record_basics.html
+[Magical Record github]: https://github.com/magicalpanda/MagicalRecord
+[realm url]: http://realm.io/
+[realm doc url]: http://realm.io/docs/cocoa
+[realm api url]: http://realm.io/docs/cocoa/api
+[realm rest-apis]: http://realm.io/docs/cocoa/#rest-apis
+[realm json github]: https://github.com/matthewcheok/Realm-JSON
+
+[raywenderlich realm]: http://www.raywenderlich.com/81615/introduction-to-realm
+[github realm]: https://github.com/realm/realm-cocoa
+[realm chinese]: https://happyingly.github.io/blog/2014/07/26/realmshu-ju-ku-shi-yong-jie-shao-1/
