@@ -89,8 +89,12 @@ $ gem install jekyll
 
 当然，你也可以遵循[jekyll官方安装指南](http://jekyllrb.com/docs/installation/)。
 
+## Reference
+
+[kramdown Syntax][kramdown syntax url]
 
 [pagesUrl]:  https://pages.github.com/
 [jekyllrb]: 	http://jekyllrb.com/
 [jekyllcn]: http://jekyllcn.com/
 [jekyllStructure]: http://jekyllrb.com/docs/structure/
+[kramdown syntax url]: http://kramdown.gettalong.org/syntax.html
