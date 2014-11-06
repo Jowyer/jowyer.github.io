@@ -1,0 +1,110 @@
+---
+layout: post
+title:  Modeling, Persist Data & Mantle
+date:   2014-11-03 22:02:33
+categories: personal
+---
+今天看到一个很好的开源库[Mantle][Mantle github]，顺便一路整理下Modeling，Persist Data的概念。
+
+## Modeling
+首先来说说建模，一个好的模型应该是可重用的，针对特定领域表现其结构特征的。模型对象最好不要与用户交互和显示逻辑扯上关系。
+
+> Because [model objects][model object apple doc] represent knowledge and expertise related to a specific problem domain, they can be reused when that problem domain is in effect. Ideally, a model object should have no explicit connection to the view objects that present its data and allow users to edit that data—in other words, it should not be concerned with user-interface and presentation issues.
+
+Apple给出一个好的模型应该考虑这几个方面：
+
+* Instance variables
+* Accessor methods and declared properties
+* Key-value coding
+* Initialization and deallocation
+* **Object encoding**
+* **Object copying**
+
+接着我们就来看看`Object encoding`和`Object copying`。
+
+## Persist Data 
+
+在说`Object encoding`之前，我们要说一下`Persist Data`，**what**和**why**。
+
+> Persistence is achieved in practice by storing the **state** as data in non-volatile storage such as a hard drive or flash memory, most basically via serialization of the data to a storable format, and then saving the data to a file.
+
+> Among the most important architectural decisions made when building an app is how to **persist data** between launches. The question of how, exactly, to re-create the **state** of the app from the time it was last opened; of how to describe the **object graph** in such a way that it can be flawlessly reconstructed next time.
+
+### Object graph
+> In an object-oriented program, groups of objects form a network through their relationships with each other—either through a direct reference to another object or through a chain of intermediate references. These groups of objects are referred to as [object graphs][object graph apple doc].
+
+> Sometimes you may want to convert an object graph—usually just a section of the full object graph in the application—into a form that can be **saved to a file or transmitted to another process or machine** and then reconstructed. This process is known as [archiving][archiving apple doc].
+
+### Object encoding
+> [Object encoding][object encoding apple doc] converts an object’s class identity and state to a format that can be stored or transferred between processes. The class type and instance data are written to a **byte stream** that can persist after a program terminates. When the program is launched again, a newly allocated object can decode the stored representation of itself and restore itself to its previous runtime state. **Encoding usually occurs in concert with archiving**, which puts a graph of objects into a format (an archive) that can be written to the file system; unarchiving operates on an archive, asking each object in the stored graph to decode itself.
+
+> Classes that conform to **NSCoding** can be **serialized and deserialized** into data that can be either be archived to disk or distributed across a network.
+
+### 概括
+数据持久化的意义在于，每次打开app，都尽量给用户一种接续的体验：是从上次离开的地方继续开始的。
+
+对离开时的`state`进行保存，实际就是对当时的`object graph`进行保存。将整个`object graph`进行序列化编码保存的过程就是`archiving`，`archived`的文件可以存本地或进行传输。
+
+在`archiving`的过程中，每个`object`就会进行`encoding`，而满足`encoding`的前提是每个`object`都遵从`<NSCoding>`协议。
+
+## Object Copying
+再来看看`Object copying`：
+
+> [Copying][object copy apple doc] an object creates a new object with the same class and properties as the original object. You copy an object when you want your own version of the data that the object contains. If you receive an object from elsewhere in an application but do not copy it, you share the object with its owner (and perhaps others), who might change the encapsulated contents. 
+
+### NSCopying
+> An object can be **copied** if its class adopts the **NSCopying** protocol and implements its single method, **copyWithZone:**.
+
+实现NSCopying协议就可以让该类及其子类被`copy`。
+
+在`copyWithZone:`方法中可以实现[复制初始化][how to copy github]的方式。
+
+### Shallow or Deep
+> Copies of objects can be **shallow** or **deep**. Both shallow- and deep-copy approaches directly duplicate **scalar properties** but differ on how they handle **pointer references**, particularly references to objects. A deep copy duplicates the **objects** referenced while a shallow copy duplicates only the **references** to those objects. 
+
+`copy`是深拷贝，内容拷贝；`retain`是浅拷贝，指针拷贝。
+
+## Mantle
+
+> Mantle makes it easy to write a simple model layer for your Cocoa or Cocoa Touch application.
+
+好吧，终于说到[Mantle][Mantle github]了。使用Mantle来构建`model`层，有两个很大的便利：
+
+### MTLModel
+**MTLModel**已经默认实现了：
+
+* `<NSCoding>`
+* `<NSCopying>`
+* `-isEqual:`
+* `-hash`
+
+在进行**数据持久化**和**拷贝**操作的时候，可以直接使用。
+
+因为提供了`-isEqual:`和`-hash`的默认实现，可以把`model`作为`NSDictionary`的`key`来使用。
+
+### MTLJSONSerializing
+Mantle提供了`model`对象直接序列化为`JSON`格式的双向方法，方便与服务器端交互。
+
+使用时需要实现`<MTLJSONSerializing>`协议。
+
+
+## Reference
+[iWangKe][iwangke mantle]
+
+[NSHipster][nshipster nscoding]
+
+
+
+
+
+[model object apple doc]: https://developer.apple.com/library/ios/documentation/general/conceptual/DevPedia-CocoaCore/ModelObject.html
+[Mantle github]: https://github.com/Mantle/Mantle
+[object graph apple doc]: https://developer.apple.com/library/ios/documentation/general/conceptual/DevPedia-CocoaCore/ObjectGraph.html
+[archiving apple doc]: https://developer.apple.com/library/ios/documentation/general/conceptual/DevPedia-CocoaCore/Archiving.html
+[object encoding apple doc]: https://developer.apple.com/library/ios/documentation/general/conceptual/DevPedia-CocoaCore/ObjectEncoding.html
+[object copy apple doc]: https://developer.apple.com/library/ios/documentation/general/conceptual/DevPedia-CocoaCore/ObjectCopying.html
+[how to copy github]: http://stackoverflow.com/questions/1459598/how-to-copy-an-object-in-objective-c
+
+[iwangke mantle]: http://www.iwangke.me/2014/10/13/Why-Changba-iOS-choose-Mantle/
+[nshipster nscoding]: http://nshipster.com/nscoding/
+
