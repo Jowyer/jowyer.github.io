@@ -18,7 +18,7 @@ categories: personal
 
 今天要介绍的**Realm**，号称要取代*SQLite*和*Core Data*。目前已支持*iOS*, *OS X*, *Android*平台，并且支持*Swift*语言。
 
-## [ORM](#orm)
+## ORM 
 在介绍Realm之前，还是先讲两个概念。第一个，ORM：
 
 > Object-relational mapping is a technique that connects the rich objects of an application to tables in a relational database management system. Using ORM, the properties and relationships of the objects in an application can be easily stored and retrieved from a database without writing SQL statements directly and with less overall database access code.
@@ -27,7 +27,7 @@ ORM中文解释为 对象/关系型数据映射，作用是把 对象模型 和 
 
 在实际开发中，程序员使用面向对象的技术操作数据，而当要把数据存储起来时，使用的却是关系型数据库，这样就造成了很多的不便。ORM在对象模型和关系数据库的表之间建立了一座桥梁，有了它，程序员就不需要再使用SQL语句操作数据库中的表，直接操作对象就可以实现数据的存储、查询、更改和删除等操作。
 
-## [Active Record Pattern](#ActiveRecordPattern)
+## Active Record Pattern
 从Ruby语言的[Active Record Pattern][Ruby Active Record Basics]受到启发，不少第三方类库都以此来为iOS实现了ORM。
 
 > In Active Record, objects carry both persistent data and behavior which operates on that data. Active Record takes the opinion that ensuring data access logic is part of the object will educate users of that object on how to write to and read from the database.
@@ -45,7 +45,7 @@ ORM中文解释为 对象/关系型数据映射，作用是把 对象模型 和 
 [Magical Record][Magical Record github]和**Realm**正是如此实现的，所不同的是[Magical Record][Magical Record github]的背后是Core Data，而**Realm**的后台则是操作自己的数据库。
 
 
-## [Realm](realm)
+## Realm
 > [Realm][realm url] is a mobile database: a replacement for SQLite & Core Data.
 
 终于说到正主了，下面是一些核心的概念。
@@ -110,7 +110,8 @@ Realm数据库在app中存放的路径，通过下面这行语句可以找到，
 println(RLMRealm.defaultRealm().path)
 {% endhighlight %}
 
-## [Realm Object 与 Mantle Object的差异](#RealmAndMantle)
+## Realm Object 与 Mantle Object的差异
+
 Realm Object：`RLMObject`和[上一篇博文][jowyer blog mantle]提到的Mantle Object：`MTLModel`都适合用来构架app的**model**层，下面来看看它们的差异。
 
 ### 数据持久化

@@ -9,4 +9,7 @@ baseurl: "" # the subpath of your site, e.g. /blog/
 github_username:  jowyer
 
 # Build settings
+highlighter: pygments
 markdown: kramdown
+kramdown:
+    input:         GFM  
