@@ -1,7 +1,8 @@
 ---
 layout: page
-title: 关于
+title: About
 permalink: /about/
 ---
+始从通信，受帮主感召，转投移动互联网。
 
-苹果开发者，帮主信徒，果粉。。好吧，我中毒已太深。
+iOS开发者，喜欢简单，美好的事物。
