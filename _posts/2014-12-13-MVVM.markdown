@@ -1,0 +1,82 @@
+---
+layout: post
+title:  MVVM
+date:   2014-12-13 23:48:28
+categories: iOS
+---
+之前一直使用的设计模式都是**MVC**，现在是时候向更高阶的**MVVM**迈进了。有了[ReactiveCocoa](http://jowyer.github.io/personal/2014/12/05/ReactiveCocoa.html)，iOS才能自如的使用**MVVM**。
+
+## Introduction
+>The Model-View-ViewModel, or MVVM pattern as it’s commonly known, is a UI design pattern. It’s a member of a larger family of patterns collectively known as MV*, these include Model View Controller (MVC), Model View Presenter (MVP) and a number of others.
+>
+>Each of these patterns is concerned with separating UI logic from business logic in order to make applications easier to develop and test.
+
+![](http://www.objc.io/images/issue-13/mvvm1.png)
+
+This is a typical MVC setup. **Models** represent data, **views** represent user interfaces, and **view controllers** mediate the interactions between the two of them. 
+
+Yet **views** and **view controllers** almost always go hand-in-hand together, paired. This more accurately describes the MVC code that we’re writing:
+
+![](http://www.objc.io/images/issue-13/intermediate.png)
+
+In typical MVC applications, a lot of logic gets placed in the **view controller**. Some of it belongs in the **view controller**, sure, but ***a lot*** of it is what’s called ‘presentation logic’, in MVVM terms – things like transforming values from the model into something the view can present, like taking an `NSDate` and turning it into a formatted `NSString`.
+
+**View Model** is where we can place all of that presentation logic.
+
+![](http://www.objc.io/images/issue-13/mvvm.png)
+
+This diagram accurately describes what MVVM is: an augmented version of MVC where we formally connect the **view** and **view controller**, and move presentation logic out of the controller and into a new object, the **view model**.
+
+There are three important points about MVVM:
+
+* MVVM is compatible with your existing MVC architecture.
+* MVVM makes your apps more testable.
+* MVVM works best with a **binding mechanism**.
+
+## MVVM and MVC
+
+The relationships between the three components of the MVVM pattern are simpler than the MVC equivalents, following these strict rules:
+
+1. The **View** has a reference to the **ViewModel**, but not vice-versa.
+2. The **ViewModel** has a reference to the **Model**, but not vice-versa.
+
+If you break either of these rules, you’re doing MVVM wrong!
+
+
+A couple of immediate advantages of this pattern are as follows:
+
+1. Lightweight Views – All your UI logic resides within the **ViewModel**, resulting in a very lightweight **View**.
+2. Testing – you should be able to run your entire application without the **View**, greatly enhancing its testability.
+
+## MVVM and Data Binding
+
+The MVVM pattern relies on data-binding, a framework level feature that automatically connects object properties to UI controls.
+
+The **view model** can update its properties when the **model** backing those properties changes. Furthermore, once the **models** on the **view model** change, the **views'** properties need to be updated as well. A change from the **model** should cascade down through the **view model** into the **view**.
+
+Unfortunately, iOS lacks a data-binding framework, but this is where *ReactiveCocoa* acts as the ‘glue’ that connects the **ViewModel** together.
+
+![](http://cdn1.raywenderlich.com/wp-content/uploads/2014/06/MVVMReactiveCocoa.png)
+
+ReactiveCocoa is vital for binding the **View** to the **ViewModel**, ensuring that the two remain synchronized.
+
+## Build Structure
+
+The **Model** layer exposes a ‘service’ that the **ViewModel** consumes. A **protocol** defines this service interface, providing *loose coupling*.
+You could use this approach to provide a dummy service implementation for unit tests. The application now has the correct Model-View-ViewModel structure. To briefly recap:
+
+1. The **Model** layer exposes services and is responsible for providing business logic for the application.
+2. The **ViewModel** layer represents the view-state of the application. It also responds to user interactions and ‘events’ that come from the **Model** layer, each of which are reflected by changes in view-state.
+3. The **View** layer is very thin and simply provides a visualisation of the **ViewModel** state and forwards user interactions.
+
+Conceptually, the **ViewModel** layer drives the application; logic within this layer determines what displays in the **View**, as well as how and when navigation should occur.
+
+
+## Reference
+[RayWenderlich](http://www.raywenderlich.com/74106/mvvm-tutorial-with-reactivecocoa-part-1)
+
+[objc.io](http://www.objc.io/issue-13/mvvm.html)
+
+[Srdan Rasic](http://rasic.info/from-mvc-to-mvvm-in-swift/)
+
+
