@@ -2,7 +2,7 @@
 layout: post
 title:  Mobile Database -- Realm
 date:   2014-11-05 23:45:52
-categories: personal
+categories: iOS
 ---
 [上一篇博文][jowyer blog mantle]讲了数据持久化，这一篇就接着讲讲数据库。
 

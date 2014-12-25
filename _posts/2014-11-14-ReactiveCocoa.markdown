@@ -2,7 +2,7 @@
 layout: post
 title:  ReactiveCocoa
 date:   2014-12-04 23:13:54
-categories: personal
+categories: iOS
 ---
 就像[Mattt Thompson][mattt twitter]在他的[博客][nshipster ReactiveCocoa]里讲的一样，**Objective-C**语言经历了四次进化，最新的一次是吸收了其他语言的经典语法，以**Objective-C**的方式来重新实现。
 

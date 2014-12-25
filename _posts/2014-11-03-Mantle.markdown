@@ -2,7 +2,7 @@
 layout: post
 title:  Modeling, Persist Data & Mantle
 date:   2014-11-03 22:02:33
-categories: personal
+categories: iOS
 ---
 今天看到一个很好的开源库[Mantle][Mantle github]，顺便一路整理下Modeling，Persist Data的概念。
 
