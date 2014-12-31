@@ -36,7 +36,12 @@ To add an `AVCaptureDevice` to a session, wrap it in an `AVCaptureDeviceInput`. 
 ### AVCaptureMetadataOutput
 An `AVCaptureMetadataOutput` object intercepts metadata objects emitted by its associated capture connection and forwards them to a delegate object for processing. You can use instances of this class to process specific types of metadata included with the input data.
 
-`AVCaptureMetadataOutput` provides a callback to the application when metadata is detected in a video frame. AV Foundation supports two types of metadata: *machine readable codes* and *face detection*.
+It provides a callback to the application when metadata is detected in a video frame. AV Foundation supports two types of metadata: *machine readable codes* and *face detection*.
+
+### AVCaptureVideoPreviewLayer
+`AVCaptureVideoPreviewLayer` is a subclass of CALayer that you use to display video as it is being captured by an input device.
+
+It provides a mechanism for displaying the current frames flowing through a capture session; it allows you to display the camera output in your UI.
 
 ## Usage
 All you need to do is set up an `AVCaptureMetaDataOutput` as the output of an `AVCaptureSession`, and implement the `captureOutput:didOutputMetadataObjects:fromConnection:` method accordingly:
@@ -51,52 +56,60 @@ AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTyp
 NSError *error = nil;
 AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice:device
                                                                     error:&error];
-if (input) {
+if (input && [session canAddInput:input]) {
     [session addInput:input];
 } else {
     NSLog(@"Error: %@", error);
 }
-
-AVCaptureMetadataOutput *output = [[AVCaptureMetadataOutput alloc] init];
 
 /* AV Foundation is designed for high throughput and low latency; 
 therefore any processing and analysis tasks should be
 moved off of the main thread if at all possible.
 */
 dispatch_queue_t metadataQueue = dispatch_queue_create("com.jw.metadata", 0);
-[output setMetadataObjectsDelegate:self queue:metadataQueue]; //AVCaptureMetadataOutputObjectsDelegate
 
+AVCaptureMetadataOutput *output = [[AVCaptureMetadataOutput alloc] init];
+[output setMetadataObjectsDelegate:self queue:metadataQueue]; //AVCaptureMetadataOutputObjectsDelegate
 if ([session canAddOutput:output]) {
     [session addOutput:output];
 }
+output.metadataObjectTypes = output.availableMetadataObjectTypes;
 
-[output setMetadataObjectTypes:@[AVMetadataObjectTypeQRCode]];
+UIView *previewView = [[UIView alloc] initWithFrame:self.view.bounds];
+[self.view addSubview:previewView];
+    
+
+AVCaptureVideoPreviewLayer *previewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:session];
+previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
+previewLayer.frame = previewView.bounds;
+[previewView.layer addSublayer:previewLayer];
 
 [session startRunning];
 // Sessions should run only when the view controller is on screen.
 // [session stopRunning];
 
 #pragma mark - AVCaptureMetadataOutputObjectsDelegate
-
 - (void)captureOutput:(AVCaptureOutput *)captureOutput
 didOutputMetadataObjects:(NSArray *)metadataObjects
        fromConnection:(AVCaptureConnection *)connection
 {
-    NSString *QRCode = nil;
+    NSString *codeString = nil;
     for (AVMetadataObject *metadata in metadataObjects) {
         if ([metadata isKindOfClass: [AVMetadataMachineReadableCodeObject class]]) {
-            QRCode = [(AVMetadataMachineReadableCodeObject *)metadata stringValue];
+            codeString = [(AVMetadataMachineReadableCodeObject *)metadata stringValue];
+            NSLog(@"codeString : %@", codeString);
             break;
         }
     }
-
+    
     dispatch_sync(dispatch_get_main_queue(), ^{
-        NSLog(@"QR Code: %@", QRCode);
+        // ...
     });
 }
 {% endhighlight %}
 
-## 3rd Party
+## Demo
+做了一个类似微信扫码的demo，放在[GitHub](https://github.com/Jowyer/QRCodeDemo)上了。
 
 ## Reference
 [RayWenderlich](http://www.raywenderlich.com/store/ios-7-by-tutorials)
