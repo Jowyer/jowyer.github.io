@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  QR Code
+title:  Scan QR Code
 date:   2014-12-24 22:51:08
 categories: iOS
 ---
