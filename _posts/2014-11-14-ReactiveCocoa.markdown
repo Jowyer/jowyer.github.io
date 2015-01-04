@@ -361,6 +361,8 @@ It's a kind of KVO using blocks.
 
 [Limboy](http://limboy.me/ios/2013/06/19/frp-reactivecocoa.html)
 
+[唐巧](http://blog.devtang.com/blog/2014/02/11/reactivecocoa-introduction/)
+
 [iTiger](http://www.itiger.me/?p=38)
 
 [ReactiveCocoa Documentation][RAC doc]
