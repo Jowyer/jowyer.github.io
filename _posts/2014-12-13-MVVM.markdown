@@ -27,6 +27,8 @@ In typical MVC applications, a lot of logic gets placed in the **view controller
 
 This diagram accurately describes what MVVM is: an augmented version of MVC where we formally connect the **view** and **view controller**, and move presentation logic out of the controller and into a new object, the **view model**.
 
+To mention a few roles of **view controller**: it listens for orientation changes and adjusts views as necessary, handles events like button taps or view scrolls, acts on gesture recognizer actions, worries about state preservation, controls status and navigation bars and can manage memory. Burdening it with model processing should be avoided when possible. This is a issue we’ll try to solve with MVVM pattern.
+
 There are three important points about MVVM:
 
 * MVVM is compatible with your existing MVC architecture.
