@@ -14,7 +14,7 @@ categories: iOS
 
 ## Usage
 1. **Storyboard**中可直接使用。
-2. **Launch Screen**中用还有[问题](http://stackoverflow.com/questions/25794314/using-custom-fonts-with-xcode-6-ios-8-interface-builder-launch-screen)，在Xcode中看见已经是自定义的字体，但是运行起来之后，却用的是**System Font**，应该是Xcode的一个bug。
+2. **Launch Screen**中使用还有[问题](http://stackoverflow.com/questions/25794314/using-custom-fonts-with-xcode-6-ios-8-interface-builder-launch-screen)，在Xcode中看见已经是自定义的字体，但是运行起来之后，却用的是**System Font**，应该是Xcode的一个bug。
 3. 代码中使用，注意是用**font name**而不是**font family name**：
 
 {% highlight objc %}
