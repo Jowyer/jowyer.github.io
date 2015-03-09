@@ -4,6 +4,18 @@ title:  AutoLayout & UIScrollView
 date:   2015-1-12 23:25:30
 categories: iOS
 ---
+
+## Update
+
+今天看到了一个更直观更简单的[办法](http://spin.atomicobject.com/2014/03/05/uiscrollview-autolayout-ios/)：
+
+1. 为`scrollView`添加一个`contentView`，设置好它们之间的constraints，`contentView`务必要和`scrollView`的四个边界都要有constraint。
+2. 定义`contentView`的**Width Constraint**和**Height Constraint**，并将constraint的`Placeholder`的属性勾上：**Remove at build time**。
+3. 将**Width Constraint**和**Height Constraint**设为**Class**的`IBOutlet`属性。
+4. 在`-viewDidLayoutSubviews`方法中进行动态赋值。
+
+## Preface
+
 在对**UIScrollView**进行**AutoLayout**布局时，会比使用其他控件更麻烦一些。
 
 **UIScrollView**有一个`contentSize`属性，其定义了**UIScrollView**可滚动内容的大小。以前用纯代码的方式时，我们会直接对这个属性赋值，定义其大小。在**AutoLayout**中，我们不会直接使用这个属性，而`contentSize`是由其**内容**的约束来实现自动赋值。所以，我们需要对**UIScrollView**和它的**content**分别添加约束。
