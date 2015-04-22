@@ -10,9 +10,20 @@ categories: iOS
 今天看到了一个更直观更简单的[办法](http://spin.atomicobject.com/2014/03/05/uiscrollview-autolayout-ios/)：
 
 1. 为`scrollView`添加一个`contentView`，设置好它们之间的constraints，`contentView`务必要和`scrollView`的四个边界都要有constraint。
-2. 定义`contentView`的**Width Constraint**和**Height Constraint**，并将constraint的`Placeholder`的属性勾上：**Remove at build time**。
-3. 将**Width Constraint**和**Height Constraint**设为**Class**的`IBOutlet`属性。
-4. 在`-viewDidLayoutSubviews`方法中进行动态赋值。
+2. 定义`contentView`的**Width Constraint**和**Height Constraint**，并将constraint的`Placeholder`的属性勾上：**Remove at build time**。此时仅仅用作布局，在build time时是被remove掉的。
+3. 在**Class**的`-viewDidLayoutSubviews`方法中手动添加上一步的**Width Constraint**和**Height Constraint**。
+
+{% highlight objc %}
+[self.scrollContentView addConstraint:[NSLayoutConstraint constraintWithItem:self.scrollContentView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:self.scrollView.frame.size.width * 2]];
+[self.scrollContentView addConstraint:[NSLayoutConstraint constraintWithItem:self.scrollContentView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:self.scrollView.frame.size.height]];
+{% endhighlight %}
+
+如果对于**UISplitViewController**，在`-presentDetailViewController`后，原有detailViewController的`frame`会有所改变，那么可以用 delay执行 的方式来解决下。
+
+{% highlight objc %}
+[self performSelector:@selector(addConstraints) withObject:nil afterDelay:0.1];
+{% endhighlight %}
+
 
 ## Preface
 
