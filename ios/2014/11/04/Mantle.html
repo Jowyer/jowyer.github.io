@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Modeling, Persist Data & Mantle</title>
+    <meta name="description" content="Simplicity is the ultimate sophistication.
+">
+
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="canonical" href="/ios/2014/11/04/Mantle.html">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/">Jowyer's Blog</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+          
+          <a class="page-link" href="/contact/">Contact</a>
+          
+        
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Modeling, Persist Data & Mantle</h1>
+    <p class="post-meta">Nov 4, 2014</p>
+  </header>
+
+  <article class="post-content">
+    <p>今天看到一个很好的开源库<a href="https://github.com/Mantle/Mantle">Mantle</a>，顺便一路整理下Modeling，Persist Data的概念。</p>
+
+<h2 id="modeling">Modeling</h2>
+<p>首先来说说建模，一个好的模型应该是可重用的，针对特定领域表现其结构特征的。模型对象最好不要与用户交互和显示逻辑扯上关系。</p>
+
+<blockquote>
+  <p>Because <a href="https://developer.apple.com/library/ios/documentation/general/conceptual/DevPedia-CocoaCore/ModelObject.html">model objects</a> represent knowledge and expertise related to a specific problem domain, they can be reused when that problem domain is in effect. Ideally, a model object should have no explicit connection to the view objects that present its data and allow users to edit that data—in other words, it should not be concerned with user-interface and presentation issues.</p>
+</blockquote>
+
+<p>Apple给出一个好的模型应该考虑这几个方面：</p>
+
+<ul>
+  <li>Instance variables</li>
+  <li>Accessor methods and declared properties</li>
+  <li>Key-value coding</li>
+  <li>Initialization and deallocation</li>
+  <li><strong>Object encoding</strong></li>
+  <li><strong>Object copying</strong></li>
+</ul>
+
+<p>接着我们就来看看<code>Object encoding</code>和<code>Object copying</code>。</p>
+
+<h2 id="persist-data">Persist Data</h2>
+
+<p>在说<code>Object encoding</code>之前，我们要说一下<code>Persist Data</code>，<strong>what</strong>和<strong>why</strong>。</p>
+
+<blockquote>
+  <p>Persistence is achieved in practice by storing the <strong>state</strong> as data in non-volatile storage such as a hard drive or flash memory, most basically via serialization of the data to a storable format, and then saving the data to a file.</p>
+</blockquote>
+
+<blockquote>
+  <p>Among the most important architectural decisions made when building an app is how to <strong>persist data</strong> between launches. The question of how, exactly, to re-create the <strong>state</strong> of the app from the time it was last opened; of how to describe the <strong>object graph</strong> in such a way that it can be flawlessly reconstructed next time.</p>
+</blockquote>
+
+<h3 id="object-graph">Object graph</h3>
+<blockquote>
+  <p>In an object-oriented program, groups of objects form a network through their relationships with each other—either through a direct reference to another object or through a chain of intermediate references. These groups of objects are referred to as <a href="https://developer.apple.com/library/ios/documentation/general/conceptual/DevPedia-CocoaCore/ObjectGraph.html">object graphs</a>.</p>
+</blockquote>
+
+<blockquote>
+  <p>Sometimes you may want to convert an object graph—usually just a section of the full object graph in the application—into a form that can be <strong>saved to a file or transmitted to another process or machine</strong> and then reconstructed. This process is known as <a href="https://developer.apple.com/library/ios/documentation/general/conceptual/DevPedia-CocoaCore/Archiving.html">archiving</a>.</p>
+</blockquote>
+
+<h3 id="object-encoding">Object encoding</h3>
+<blockquote>
+  <p><a href="https://developer.apple.com/library/ios/documentation/general/conceptual/DevPedia-CocoaCore/ObjectEncoding.html">Object encoding</a> converts an object’s class identity and state to a format that can be stored or transferred between processes. The class type and instance data are written to a <strong>byte stream</strong> that can persist after a program terminates. When the program is launched again, a newly allocated object can decode the stored representation of itself and restore itself to its previous runtime state. <strong>Encoding usually occurs in concert with archiving</strong>, which puts a graph of objects into a format (an archive) that can be written to the file system; unarchiving operates on an archive, asking each object in the stored graph to decode itself.</p>
+</blockquote>
+
+<blockquote>
+  <p>Classes that conform to <strong>NSCoding</strong> can be <strong>serialized and deserialized</strong> into data that can be either be archived to disk or distributed across a network.</p>
+</blockquote>
+
+<h3 id="section">概括</h3>
+<p>数据持久化的意义在于，每次打开app，都尽量给用户一种接续的体验：是从上次离开的地方继续开始的。</p>
+
+<p>对离开时的<code>state</code>进行保存，实际就是对当时的<code>object graph</code>进行保存。将整个<code>object graph</code>进行序列化编码保存的过程就是<code>archiving</code>，<code>archived</code>的文件可以存本地或进行传输。</p>
+
+<p>在<code>archiving</code>的过程中，每个<code>object</code>就会进行<code>encoding</code>，而满足<code>encoding</code>的前提是每个<code>object</code>都遵从<code>&lt;NSCoding&gt;</code>协议。</p>
+
+<h2 id="object-copying">Object Copying</h2>
+<p>再来看看<code>Object copying</code>：</p>
+
+<blockquote>
+  <p><a href="https://developer.apple.com/library/ios/documentation/general/conceptual/DevPedia-CocoaCore/ObjectCopying.html">Copying</a> an object creates a new object with the same class and properties as the original object. You copy an object when you want your own version of the data that the object contains. If you receive an object from elsewhere in an application but do not copy it, you share the object with its owner (and perhaps others), who might change the encapsulated contents. </p>
+</blockquote>
+
+<h3 id="nscopying">NSCopying</h3>
+<blockquote>
+  <p>An object can be <strong>copied</strong> if its class adopts the <strong>NSCopying</strong> protocol and implements its single method, <strong>copyWithZone:</strong>.</p>
+</blockquote>
+
+<p>实现NSCopying协议就可以让该类及其子类被<code>copy</code>。</p>
+
+<p>在<code>copyWithZone:</code>方法中可以实现<a href="http://stackoverflow.com/questions/1459598/how-to-copy-an-object-in-objective-c">复制初始化</a>的方式。</p>
+
+<h3 id="shallow-or-deep">Shallow or Deep</h3>
+<blockquote>
+  <p>Copies of objects can be <strong>shallow</strong> or <strong>deep</strong>. Both shallow- and deep-copy approaches directly duplicate <strong>scalar properties</strong> but differ on how they handle <strong>pointer references</strong>, particularly references to objects. A deep copy duplicates the <strong>objects</strong> referenced while a shallow copy duplicates only the <strong>references</strong> to those objects. </p>
+</blockquote>
+
+<p><code>copy</code>是深拷贝，内容拷贝；<code>retain</code>是浅拷贝，指针拷贝。</p>
+
+<h2 id="mantle">Mantle</h2>
+
+<blockquote>
+  <p>Mantle makes it easy to write a simple model layer for your Cocoa or Cocoa Touch application.</p>
+</blockquote>
+
+<p>好吧，终于说到<a href="https://github.com/Mantle/Mantle">Mantle</a>了。使用Mantle来构建<code>model</code>层，有两个很大的便利：</p>
+
+<h3 id="mtlmodel">MTLModel</h3>
+<p><strong>MTLModel</strong>已经默认实现了：</p>
+
+<ul>
+  <li><code>&lt;NSCoding&gt;</code></li>
+  <li><code>&lt;NSCopying&gt;</code></li>
+  <li><code>-isEqual:</code></li>
+  <li><code>-hash</code></li>
+</ul>
+
+<p>在进行<strong>数据持久化</strong>和<strong>拷贝</strong>操作的时候，可以直接使用。</p>
+
+<p>因为提供了<code>-isEqual:</code>和<code>-hash</code>的默认实现，可以把<code>model</code>作为<code>NSDictionary</code>的<code>key</code>来使用。</p>
+
+<h3 id="mtljsonserializing">MTLJSONSerializing</h3>
+<p>Mantle提供了<code>model</code>对象直接序列化为<code>JSON</code>格式的双向方法，方便与服务器端交互。</p>
+
+<p>使用时需要实现<code>&lt;MTLJSONSerializing&gt;</code>协议。</p>
+
+<h2 id="reference">Reference</h2>
+<p><a href="http://www.iwangke.me/2014/10/13/Why-Changba-iOS-choose-Mantle/">iWangKe</a></p>
+
+<p><a href="http://nshipster.com/nscoding/">NSHipster</a></p>
+
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>Copyright © 2015 - Jowyer Wang</li> 
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        
+      </div>
+
+      <div class="footer-col  footer-col-3">
+        <p class="text">Simplicity is the ultimate sophistication.
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+    <script>
+  var anchorForId = function (id) {
+    var anchor = document.createElement("a");
+    anchor.className = "header-link";
+    anchor.href      = "#" + id;
+    anchor.innerHTML = "<i class=\"fa fa-link\"></i>";
+    return anchor;
+  };
+
+  var linkifyAnchors = function (level, containingElement) {
+    var headers = containingElement.getElementsByTagName("h" + level);
+    for (var h = 0; h < headers.length; h++) {
+      var header = headers[h];
+
+      if (typeof header.id !== "undefined" && header.id !== "") {
+        header.appendChild(anchorForId(header.id));
+      }
+    }
+  };
+
+  document.onreadystatechange = function () {
+    if (this.readyState === "complete") {
+      var contentBlock = document.getElementsByClassName("post")[0];  //  || document.getElementsByClassName("page")[0] 
+      if (!contentBlock) {
+        return;
+      }
+      for (var level = 1; level <= 6; level++) {
+        linkifyAnchors(level, contentBlock);
+      }
+    }
+  };
+</script>
+
+
+  </body>
+
+</html>

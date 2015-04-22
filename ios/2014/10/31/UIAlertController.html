@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>UIAlertController</title>
+    <meta name="description" content="Simplicity is the ultimate sophistication.
+">
+
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="canonical" href="/ios/2014/10/31/UIAlertController.html">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/">Jowyer's Blog</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+          
+          <a class="page-link" href="/contact/">Contact</a>
+          
+        
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">UIAlertController</h1>
+    <p class="post-meta">Oct 31, 2014</p>
+  </header>
+
+  <article class="post-content">
+    <p>决定以后的博客尽量用Swift来写，还是要尽快转Swift啊。</p>
+
+<p><code>UIAlertController</code>也是iOS 8推出的一个新类，用来替代 <code>UIActionSheet</code> and <code>UIAlertView</code>。这样统一到一个类里，使用也更方便了。</p>
+
+<blockquote>
+  <p>A UIAlertController object displays an alert message to the user. This class replaces the UIActionSheet and UIAlertView classes for displaying alerts.</p>
+</blockquote>
+
+<h2 id="inittitlemessagepreferredstyle">init(title:message:preferredStyle:)</h2>
+<p>设置好alertController的标题，正文，及出现的形式（Alert，ActionSheet）后，通过此方法进行初始化。</p>
+
+<div class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="k">let</span> <span class="n">title</span> <span class="o">=</span> <span class="s">&quot;Breaking News&quot;</span>
+<span class="k">let</span> <span class="n">message</span> <span class="o">=</span> <span class="s">&quot;Oops! iPhone 6 is sold out everywhere.&quot;</span>
+<span class="k">let</span> <span class="n">alertController</span> <span class="o">=</span> <span class="n">UIAlertController</span><span class="p">(</span><span class="nl">title</span><span class="p">:</span> <span class="n">title</span><span class="p">,</span> <span class="nl">message</span><span class="p">:</span> <span class="n">message</span><span class="p">,</span> <span class="nl">preferredStyle</span><span class="p">:</span> <span class="p">.</span><span class="n">Alert</span><span class="p">)</span></code></pre></div>
+
+<h2 id="presentation">Presentation</h2>
+<p>完成初始化后，通过<strong>presentViewController(_:animated:completion:)</strong>方法将alert展示出来。</p>
+
+<div class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="n">presentViewController</span><span class="p">(</span><span class="n">alertController</span><span class="p">,</span> <span class="nl">animated</span><span class="p">:</span> <span class="nb">true</span><span class="p">,</span> <span class="nb">nil</span><span class="p">)</span></code></pre></div>
+
+<h2 id="uialertaction">UIAlertAction</h2>
+<p>这样显示出来的alert是没有按钮的，要加上按钮及处理按钮按下后的逻辑，iOS 8采用了一种全新的方式。</p>
+
+<p>要处理<code>UIAlertView</code>和<code>UIActionSheet</code>的按下逻辑，我们通常需要实现<code>&lt;UIAlertViewDelegate&gt;</code>和<code>&lt;UIActionSheetDelegate&gt;</code>（deprecated in iOS 8）。不过从今往后，我们只需要和<code>UIAlertAction</code>打交道就可以了。</p>
+
+<blockquote>
+  <p>A UIAlertAction object represents an action that can be taken when tapping a button in an alert. You use this class to configure information about a single action, including the title to display in the button, any styling information, and a handler to execute when the user taps the button. </p>
+</blockquote>
+
+<h3 id="inittitlestylehandler">init(title:style:handler:)</h3>
+<p>设置好alertAction按钮的名称，样式，和按下后的操作block，通过此方法初始化<code>UIAlertAction</code>。</p>
+
+<div class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="k">let</span> <span class="n">cancelActioin</span> <span class="o">=</span> <span class="n">UIAlertAction</span><span class="p">(</span><span class="nl">title</span><span class="p">:</span> <span class="s">&quot;OK, I know&quot;</span><span class="p">,</span> <span class="nl">style</span><span class="p">:</span> <span class="p">.</span><span class="n">Cancel</span><span class="p">)</span> <span class="p">{</span> <span class="n">action</span> <span class="k">in</span>
+	<span class="n">NSLog</span><span class="p">(</span><span class="s">&quot;Cancel Button Tapped&quot;</span><span class="p">)</span>
+<span class="p">}</span></code></pre></div>
+
+<h2 id="addaction">addAction(_:)</h2>
+<p>将<code>UIAlertAction</code>附加到alert或者action sheet上。</p>
+
+<p>当有多个actions的时候，添加的顺序确定了显示的顺序。</p>
+
+<div class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="k">let</span> <span class="n">preorderActioin</span> <span class="o">=</span> <span class="n">UIAlertAction</span><span class="p">(</span><span class="nl">title</span><span class="p">:</span> <span class="s">&quot;Preorder it anyway!&quot;</span><span class="p">,</span> <span class="nl">style</span><span class="p">:</span> <span class="p">.</span><span class="n">Destructive</span><span class="p">)</span> <span class="p">{</span> <span class="n">action</span> <span class="k">in</span>
+	<span class="n">NSLog</span><span class="p">(</span><span class="s">&quot;Preorder Button Tapped&quot;</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="k">let</span> <span class="n">nokiaActioin</span> <span class="o">=</span> <span class="n">UIAlertAction</span><span class="p">(</span><span class="nl">title</span><span class="p">:</span> <span class="s">&quot;I will buy a Nokia&quot;</span><span class="p">,</span> <span class="nl">style</span><span class="p">:</span> <span class="p">.</span><span class="n">Default</span><span class="p">)</span> <span class="p">{</span> <span class="n">action</span> <span class="k">in</span>
+	<span class="n">NSLog</span><span class="p">(</span><span class="s">&quot;Nokia Button Tapped&quot;</span><span class="p">)</span>
+<span class="p">}</span>
+        
+<span class="n">alertController</span><span class="p">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">cancelActioin</span><span class="p">)</span>
+<span class="n">alertController</span><span class="p">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">preorderActioin</span><span class="p">)</span>
+<span class="n">alertController</span><span class="p">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">nokiaActioin</span><span class="p">)</span></code></pre></div>
+
+<p><img src="/images/UIAlertController_1.png" alt="Alert" /></p>
+
+<p><code>.Destructive</code>和<code>.Default</code>的button，越先添加的就越近正文；<code>.Cancel</code>的button，离正文最远。</p>
+
+<p>如果只有2个button，文本较少而能够并排排列的话，<code>.Cancel</code>则和其余类型的一样，也遵循越先添加的就越近正文，位于<strong>并排的左侧</strong>。</p>
+
+<p><code>.Destructive</code>的button，文字是<strong>红色</strong>。</p>
+
+<p><code>.Cancel</code>的button，只能有<strong>一个</strong>。</p>
+
+<h2 id="addtextfieldwithconfigurationhandler">addTextFieldWithConfigurationHandler(_:)</h2>
+<p>在alert里面添加一个text field。可以在其后的block里完成对text field的设置。</p>
+
+<p>如要添加多个text field，只需多次调用此方法。</p>
+
+<p>此方法只适用于alert，不能用于action sheet。</p>
+
+<div class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="n">alertController</span><span class="p">.</span><span class="n">addTextFieldWithConfigurationHandler</span> <span class="p">{</span> <span class="n">textField</span> <span class="k">in</span>
+	<span class="n">textField</span><span class="p">.</span><span class="n">textColor</span> <span class="o">=</span> <span class="bp">UIColor</span><span class="p">.</span><span class="n">blueColor</span><span class="p">()</span>
+<span class="p">}</span>
+<span class="n">alertController</span><span class="p">.</span><span class="n">addTextFieldWithConfigurationHandler</span> <span class="p">{</span> <span class="n">textField</span> <span class="k">in</span>
+	<span class="n">textField</span><span class="p">.</span><span class="n">placeholder</span> <span class="o">=</span> <span class="s">&quot;fill me&quot;</span>
+<span class="p">}</span></code></pre></div>
+
+<h2 id="about-actionsheet">About ActionSheet</h2>
+<p>通常将action sheet的<code>title</code>和<code>message</code>都设为<code>nil</code>。</p>
+
+<div class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="k">let</span> <span class="n">alertController</span> <span class="o">=</span> <span class="n">UIAlertController</span><span class="p">(</span><span class="nl">title</span><span class="p">:</span> <span class="nb">nil</span><span class="p">,</span> <span class="nl">message</span><span class="p">:</span> <span class="nb">nil</span><span class="p">,</span> <span class="nl">preferredStyle</span><span class="p">:</span> <span class="p">.</span><span class="n">ActionSheet</span><span class="p">)</span></code></pre></div>
+
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>Copyright © 2015 - Jowyer Wang</li> 
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        
+      </div>
+
+      <div class="footer-col  footer-col-3">
+        <p class="text">Simplicity is the ultimate sophistication.
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+    <script>
+  var anchorForId = function (id) {
+    var anchor = document.createElement("a");
+    anchor.className = "header-link";
+    anchor.href      = "#" + id;
+    anchor.innerHTML = "<i class=\"fa fa-link\"></i>";
+    return anchor;
+  };
+
+  var linkifyAnchors = function (level, containingElement) {
+    var headers = containingElement.getElementsByTagName("h" + level);
+    for (var h = 0; h < headers.length; h++) {
+      var header = headers[h];
+
+      if (typeof header.id !== "undefined" && header.id !== "") {
+        header.appendChild(anchorForId(header.id));
+      }
+    }
+  };
+
+  document.onreadystatechange = function () {
+    if (this.readyState === "complete") {
+      var contentBlock = document.getElementsByClassName("post")[0];  //  || document.getElementsByClassName("page")[0] 
+      if (!contentBlock) {
+        return;
+      }
+      for (var level = 1; level <= 6; level++) {
+        linkifyAnchors(level, contentBlock);
+      }
+    }
+  };
+</script>
+
+
+  </body>
+
+</html>

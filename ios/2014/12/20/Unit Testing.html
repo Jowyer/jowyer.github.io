@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Unit Testing</title>
+    <meta name="description" content="Simplicity is the ultimate sophistication.
+">
+
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="canonical" href="/ios/2014/12/20/Unit%20Testing.html">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/">Jowyer's Blog</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+          
+          <a class="page-link" href="/contact/">Contact</a>
+          
+        
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Unit Testing</h1>
+    <p class="post-meta">Dec 20, 2014</p>
+  </header>
+
+  <article class="post-content">
+    <p>从Xcode 5开始，Apple终于发布了自己的单元测试框架（之前接入的是OCUnit）– <strong>XCTest</strong>，而且在Xcode 6中正变得愈发强大，是时候把单元测试捡起来了 <img class="emoji" title="smile" alt="smile" src="https://github.global.ssl.fastly.net/images/icons/emoji/smile.png" height="20" width="20" align="absmiddle" /></p>
+
+<h2 id="introduction">Introduction</h2>
+
+<p>从上至下，单元测试的结构可以分为四级：</p>
+
+<h3 id="test-suite">Test suite</h3>
+
+<p>This is the entire collection of tests for your project. In Xcode, the test suite is set up as a separate build <strong>target</strong>.</p>
+
+<h3 id="test-case-classes">Test case classes</h3>
+
+<p>As you might expect in an object-oriented system, tests are grouped into classes. Each test class usually corresponds to a single class in your app. For example, the <code>DeveloperTests</code> class could contain tests for the <code>Developer</code> class.</p>
+
+<h3 id="test-case-methods">Test case methods</h3>
+
+<p>Each test case class contains multiple methods to test various features of the class. Just as methods and functions should be as short as possible and do one thing well, each test case should test one specific outcome — and test it fully.</p>
+
+<p>Test case methods must <em>start with the word <strong>test</strong></em> so the test runner can find them.</p>
+
+<h3 id="assertions">Assertions</h3>
+
+<p>Assertions check specific conditions against an expected result. If the condition does not match the expected result, Xcode throws an error to indicate an assertion failure. For example, you could assert that your <code>Developer</code> class responds to the <code>writeKillerApp:</code> message; if it doesn’t, the assertion will fail and an exception will be thrown.</p>
+
+<h2 id="setup--teardown">setUp &amp; tearDown</h2>
+
+<p><code>-setUp</code> is called before each test in an XCTestCase is run, and when that test finishes running, <code>-tearDown</code> is called.<br />
+If you have multiple test methods, then <code>-setUp</code> and <code>-tearDown</code> are called <em>multiple times</em> in a single test session — once per test case method!</p>
+
+<h2 id="naming-standard">Naming Standard</h2>
+
+<p>A common and useful <a href="http://osherove.com/blog/2005/4/3/naming-standards-for-unit-tests.html">naming standard</a> for test cases is
+<em>unitOfWork_stateUnderTest_expectedBehavior</em>. For example:</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">test_addition_twoPlusTwo_isFour</span></code></pre></div>
+
+<p>In this example, the unit of work being tested is addition, the test state is 2 + 2, and the expected behavior is that the result is 4.</p>
+
+<h2 id="xctest-assertions">XCTest Assertions</h2>
+
+<p>All XCTest assertions begin with the prefix <strong>XCT</strong>.<br />
+XCTest comes with a number of <a href="https://developer.apple.com/library/prerelease/ios/documentation/DeveloperTools/Conceptual/testing_with_xcode/testing_3_writing_test_classes/testing_3_writing_test_classes.html#//apple_ref/doc/uid/TP40014132-CH4-SW35">built-in assertions</a>, below are some essentials:</p>
+
+<h3 id="fundamental-test">Fundamental Test</h3>
+<p>All of the XCTest assertions come down to a single, base assertion:</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="n">XCTAssert</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="n">format</span><span class="p">...)</span></code></pre></div>
+
+<p>The first parameter is an expression that is expected to evaluate to true, while the NSLog-style parameters following the expression define the message displayed if the assertion fails.</p>
+
+<h3 id="boolean-tests">Boolean Tests</h3>
+<p>To test whether the expressions are true/false:</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="n">XCTAssertTrue</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="n">format</span><span class="p">...)</span>
+<span class="n">XCTAssertFalse</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="n">format</span><span class="p">...)</span></code></pre></div>
+
+<p><code>XCTAssert</code> is equivalent to <code>XCTAssertTrue</code>.</p>
+
+<h3 id="equality-tests">Equality Tests</h3>
+<p>To test whether two values are equal or not, greater or less:</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="n">XCTAssertEqual</span><span class="p">(</span><span class="n">expression1</span><span class="p">,</span> <span class="n">expression2</span><span class="p">,</span> <span class="n">format</span><span class="p">...)</span> <span class="c1">// test for scalars.</span>
+<span class="n">XCTAssertNotEqual</span><span class="p">(</span><span class="n">expression1</span><span class="p">,</span> <span class="n">expression2</span><span class="p">,</span> <span class="n">format</span><span class="p">...)</span>
+<span class="n">XCTAssertEqualWithAccuracy</span><span class="p">(</span><span class="n">expression1</span><span class="p">,</span> <span class="n">expression2</span><span class="p">,</span> <span class="n">accuracy</span><span class="p">,</span> <span class="n">format</span><span class="p">...)</span> <span class="c1">// test for scalars such as floats and doubles</span>
+<span class="n">XCTAssertEqualObjects</span><span class="p">(</span><span class="n">expression1</span><span class="p">,</span> <span class="n">expression2</span><span class="p">,</span> <span class="n">format</span><span class="p">...)</span>
+<span class="n">XCTAssertGreaterThan</span><span class="p">(</span><span class="n">expression1</span><span class="p">,</span> <span class="n">expression2</span><span class="p">,</span> <span class="n">format</span><span class="p">...)</span>
+<span class="n">XCTAssertLessThanOrEqual</span><span class="p">(</span><span class="n">expression1</span><span class="p">,</span> <span class="n">expression2</span><span class="p">,</span> <span class="n">format</span><span class="p">...)</span></code></pre></div>
+
+<h3 id="nil-tests">Nil Tests</h3>
+<p>To test the existence (or non-existence) of a given value:</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="n">XCTAssertNil</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="n">format</span><span class="p">...)</span>
+<span class="n">XCTAssertNotNil</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="n">format</span><span class="p">...)</span></code></pre></div>
+
+<h3 id="unconditional-fail">Unconditional Fail</h3>
+<p>The <code>XCTFail</code> assertion will always fail:</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="n">XCTFail</span><span class="p">(</span><span class="n">format</span><span class="p">...)</span></code></pre></div>
+
+<p><code>XCTFail</code> is most commonly used to denote a placeholder for a test that should be made to pass. It is also useful for handling error cases already accounted by other flow control structures, such as the <strong>else</strong> clause of an if statement testing for success.</p>
+
+<h2 id="xctestexpectation">XCTestExpectation</h2>
+<p>Perhaps the most exciting feature added in Xcode 6 is built-in support for <strong>asynchronous testing</strong>, with the <code>XCTestExpectation</code> class. Now, tests can wait for a specified length of time for certain conditions to be satisfied, without resorting to complicated GCD incantations.</p>
+
+<div class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="c1">// 1. Create an expectation.</span>
+<span class="k">let</span> <span class="nl">expectation</span><span class="p">:</span> <span class="n">XCTestExpectation</span> <span class="o">=</span> 
+<span class="nb">self</span><span class="p">.</span><span class="n">expectationWithDescription</span><span class="p">(</span><span class="s">&quot;Async something&quot;</span><span class="p">)</span>
+
+<span class="c1">// 2. Do some async operations. </span>
+<span class="n">myObject</span><span class="p">.</span><span class="n">doSomethingAsyncWithCompletion</span><span class="p">({</span>
+    <span class="p">...</span>
+    <span class="c1">// 4. Fulfill the expectation. </span>
+    <span class="n">expectation</span><span class="p">.</span><span class="n">fulfill</span><span class="p">();</span>
+<span class="p">})</span>
+
+<span class="c1">// 3. The test will pause here, running the run loop, until </span>
+<span class="c1">// the timeout is hit or all expectations are fulfilled. </span>
+<span class="nb">self</span><span class="p">.</span><span class="n">waitForExpectationsWithTimeout</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="nl">handler</span><span class="p">:</span> <span class="p">{</span> <span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="k">in</span>
+    <span class="c1">// 5. Expectation failed.</span>
+    <span class="n">XCTAssertNil</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="s">&quot;Async test didn&#39;t finish before timeout.&quot;</span><span class="p">);</span> 
+<span class="p">})</span></code></pre></div>
+
+<h2 id="performance-testing">Performance Testing</h2>
+<p>Performance tests which is introduced in Xcode 6, help establish a baseline of performance for hot code paths. Sprinkle them into your test cases to ensure that significant algorithms and procedures remain performant as time goes on.</p>
+
+<ul>
+  <li><code>measureBlock</code>: which takes a block of code and measures the execution time of the entire block. It runs whatever code you put inside it 10 times and measures a default set of metrics.</li>
+  <li><code>measureMetrics</code>: is a more intimate version of <code>measureBlock</code> that offers fine grained control of what to measure, and when to measure it.</li>
+</ul>
+
+<div class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="k">func</span> <span class="nf">testDateFormatterPerformance</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">dateFormatter</span> <span class="o">=</span> <span class="bp">NSDateFormatter</span><span class="p">()</span>
+    <span class="n">dateFormatter</span><span class="p">.</span><span class="n">dateStyle</span> <span class="o">=</span> <span class="p">.</span><span class="n">LongStyle</span>
+    <span class="n">dateFormatter</span><span class="p">.</span><span class="n">timeStyle</span> <span class="o">=</span> <span class="p">.</span><span class="n">ShortStyle</span>
+
+    <span class="k">let</span> <span class="n">date</span> <span class="o">=</span> <span class="bp">NSDate</span><span class="p">()</span>
+
+    <span class="n">measureBlock</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="n">string</span> <span class="o">=</span> <span class="n">dateFormatter</span><span class="p">.</span><span class="n">stringFromDate</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></div>
+
+<h2 id="tdd">TDD</h2>
+<p>最后来说说<a href="http://en.wikipedia.org/wiki/Test-driven_development">Test-Driven Development</a>。</p>
+
+<p>测试驱动开发是极限编程<em>eXtreme Programming</em>中倡导的程序开发方法：先写测试程序，然后编码实现其功能。<br />
+测试驱动开发是戴两顶帽子思考的开发方式：先戴上实现功能的帽子，在测试的辅助下，快速实现其功能；再戴上重构的帽子，在测试的保护下，通过去除冗余的代码，提高代码质量。测试驱动着整个开发过程：首先，驱动代码的设计和功能的实现；其后，驱动代码的再设计和重构。</p>
+
+<p>这个理念个人感觉还是不错的，有其优秀的地方，但也不是传说中的那么神。</p>
+
+<p>推荐看两篇文章：</p>
+
+<p><a href="https://www.ibm.com/developerworks/cn/linux/l-tdd/">浅谈测试驱动开发</a></p>
+
+<p><a href="http://coolshell.cn/articles/3649.html">TDD并不是看上去的那么美</a></p>
+
+<h2 id="reference">Reference</h2>
+<p><a href="http://www.raywenderlich.com/store/ios-7-by-tutorials">RayWenderlich</a></p>
+
+<p><a href="http://nshipster.com/xctestcase/">NSHipster</a></p>
+
+<p><a href="https://developer.apple.com/library/prerelease/ios/documentation/DeveloperTools/Conceptual/testing_with_xcode/Introduction/Introduction.html">Apple Docs</a></p>
+
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>Copyright © 2015 - Jowyer Wang</li> 
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        
+      </div>
+
+      <div class="footer-col  footer-col-3">
+        <p class="text">Simplicity is the ultimate sophistication.
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+    <script>
+  var anchorForId = function (id) {
+    var anchor = document.createElement("a");
+    anchor.className = "header-link";
+    anchor.href      = "#" + id;
+    anchor.innerHTML = "<i class=\"fa fa-link\"></i>";
+    return anchor;
+  };
+
+  var linkifyAnchors = function (level, containingElement) {
+    var headers = containingElement.getElementsByTagName("h" + level);
+    for (var h = 0; h < headers.length; h++) {
+      var header = headers[h];
+
+      if (typeof header.id !== "undefined" && header.id !== "") {
+        header.appendChild(anchorForId(header.id));
+      }
+    }
+  };
+
+  document.onreadystatechange = function () {
+    if (this.readyState === "complete") {
+      var contentBlock = document.getElementsByClassName("post")[0];  //  || document.getElementsByClassName("page")[0] 
+      if (!contentBlock) {
+        return;
+      }
+      for (var level = 1; level <= 6; level++) {
+        linkifyAnchors(level, contentBlock);
+      }
+    }
+  };
+</script>
+
+
+  </body>
+
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>AutoLayout & UIScrollView</title>
+    <meta name="description" content="Simplicity is the ultimate sophistication.
+">
+
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="canonical" href="/ios/2015/01/13/AutoLayout%20&%20UIScrollView.html">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/">Jowyer's Blog</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+          
+          <a class="page-link" href="/contact/">Contact</a>
+          
+        
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">AutoLayout & UIScrollView</h1>
+    <p class="post-meta">Jan 13, 2015</p>
+  </header>
+
+  <article class="post-content">
+    <h2 id="update">Update</h2>
+
+<p>今天看到了一个更直观更简单的<a href="http://spin.atomicobject.com/2014/03/05/uiscrollview-autolayout-ios/">办法</a>：</p>
+
+<ol>
+  <li>为<code>scrollView</code>添加一个<code>contentView</code>，设置好它们之间的constraints，<code>contentView</code>务必要和<code>scrollView</code>的四个边界都要有constraint。</li>
+  <li>定义<code>contentView</code>的<strong>Width Constraint</strong>和<strong>Height Constraint</strong>，并将constraint的<code>Placeholder</code>的属性勾上：<strong>Remove at build time</strong>。此时仅仅用作布局，在build time时是被remove掉的。</li>
+  <li>在<strong>Class</strong>的<code>-viewDidLayoutSubviews</code>方法中手动添加上一步的<strong>Width Constraint</strong>和<strong>Height Constraint</strong>。</li>
+</ol>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="p">[</span><span class="nb">self</span><span class="p">.</span><span class="n">scrollContentView</span> <span class="nl">addConstraint</span><span class="p">:[</span><span class="bp">NSLayoutConstraint</span> <span class="nl">constraintWithItem</span><span class="p">:</span><span class="nb">self</span><span class="p">.</span><span class="n">scrollContentView</span> <span class="nl">attribute</span><span class="p">:</span><span class="n">NSLayoutAttributeWidth</span> <span class="nl">relatedBy</span><span class="p">:</span><span class="n">NSLayoutRelationEqual</span> <span class="nl">toItem</span><span class="p">:</span><span class="nb">nil</span> <span class="nl">attribute</span><span class="p">:</span><span class="n">NSLayoutAttributeNotAnAttribute</span> <span class="nl">multiplier</span><span class="p">:</span><span class="mf">1.0</span> <span class="nl">constant</span><span class="p">:</span><span class="nb">self</span><span class="p">.</span><span class="n">scrollView</span><span class="p">.</span><span class="n">frame</span><span class="p">.</span><span class="n">size</span><span class="p">.</span><span class="n">width</span> <span class="o">*</span> <span class="mi">2</span><span class="p">]];</span>
+<span class="p">[</span><span class="nb">self</span><span class="p">.</span><span class="n">scrollContentView</span> <span class="nl">addConstraint</span><span class="p">:[</span><span class="bp">NSLayoutConstraint</span> <span class="nl">constraintWithItem</span><span class="p">:</span><span class="nb">self</span><span class="p">.</span><span class="n">scrollContentView</span> <span class="nl">attribute</span><span class="p">:</span><span class="n">NSLayoutAttributeHeight</span> <span class="nl">relatedBy</span><span class="p">:</span><span class="n">NSLayoutRelationEqual</span> <span class="nl">toItem</span><span class="p">:</span><span class="nb">nil</span> <span class="nl">attribute</span><span class="p">:</span><span class="n">NSLayoutAttributeNotAnAttribute</span> <span class="nl">multiplier</span><span class="p">:</span><span class="mf">1.0</span> <span class="nl">constant</span><span class="p">:</span><span class="nb">self</span><span class="p">.</span><span class="n">scrollView</span><span class="p">.</span><span class="n">frame</span><span class="p">.</span><span class="n">size</span><span class="p">.</span><span class="n">height</span><span class="p">]];</span></code></pre></div>
+
+<p>如果对于<strong>UISplitViewController</strong>，在<code>-presentDetailViewController</code>后，原有detailViewController的<code>frame</code>会有所改变，那么可以用 delay执行 的方式来解决下。</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="p">[</span><span class="nb">self</span> <span class="nl">performSelector</span><span class="p">:</span><span class="k">@selector</span><span class="p">(</span><span class="n">addConstraints</span><span class="p">)</span> <span class="nl">withObject</span><span class="p">:</span><span class="nb">nil</span> <span class="nl">afterDelay</span><span class="p">:</span><span class="mf">0.1</span><span class="p">];</span></code></pre></div>
+
+<h2 id="preface">Preface</h2>
+
+<p>在对<strong>UIScrollView</strong>进行<strong>AutoLayout</strong>布局时，会比使用其他控件更麻烦一些。</p>
+
+<p><strong>UIScrollView</strong>有一个<code>contentSize</code>属性，其定义了<strong>UIScrollView</strong>可滚动内容的大小。以前用纯代码的方式时，我们会直接对这个属性赋值，定义其大小。在<strong>AutoLayout</strong>中，我们不会直接使用这个属性，而<code>contentSize</code>是由其<strong>内容</strong>的约束来实现自动赋值。所以，我们需要对<strong>UIScrollView</strong>和它的<strong>content</strong>分别添加约束。</p>
+
+<h2 id="masonry">Masonry</h2>
+
+<p>Apple<a href="https://developer.apple.com/library/ios/technotes/tn2154/_index.html">官方文档</a>中采用了<a href="https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/AutolayoutPG/VisualFormatLanguage/VisualFormatLanguage.html">Visual Format Language</a>的方式来定义和使用<code>NSLayoutConstraints</code>，不过，我们还可以有更好的使用方式：<a href="https://github.com/Masonry/Masonry">Masonry</a></p>
+
+<blockquote>
+  <p>Harness the power of AutoLayout NSLayoutConstraints with a simplified, chainable and expressive syntax. </p>
+</blockquote>
+
+<h2 id="usage">Usage</h2>
+<ol>
+  <li>在<strong>Storyboard</strong>中添加<strong>UIScrollView</strong>，并添加其constraints。</li>
+  <li>新建<strong>ContentView.xib</strong>，继承自<strong>UIView</strong>，作为<strong>UIScrollView</strong>的内容视图，方便在<strong>IB</strong>中编辑。留意将<code>Simulated Metrics Size</code>设置为<code>Freeform</code>。</li>
+  <li>在<strong>ContentView.xib</strong>中布局各个<strong>subview</strong>，并添加相应的constraints。</li>
+  <li>新建一个Class：<strong>ContentView</strong>，并将<strong>ContentView.xib</strong>的类型定义为<strong>ContentView</strong>。</li>
+  <li>将<strong>ContentView.xib</strong>中需要依据<strong>UIScrollView</strong>大小进行改变的constraints，在<strong>ContentView.h</strong>中建立<strong>IBOutlet</strong>连接。</li>
+</ol>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="k">@interface</span> <span class="nc">ContentView</span> : <span class="bp">UIView</span>
+<span class="k">@property</span> <span class="p">(</span><span class="k">weak</span><span class="p">,</span> <span class="k">nonatomic</span><span class="p">)</span> <span class="kt">IBOutlet</span> <span class="bp">NSLayoutConstraint</span> <span class="o">*</span><span class="n">heightConstraint</span><span class="p">;</span>
+<span class="k">@property</span> <span class="p">(</span><span class="k">weak</span><span class="p">,</span> <span class="k">nonatomic</span><span class="p">)</span> <span class="kt">IBOutlet</span> <span class="bp">NSLayoutConstraint</span> <span class="o">*</span><span class="n">widthConstrait</span><span class="p">;</span>
+<span class="k">@end</span></code></pre></div>
+
+<p>6 . 实例化<strong>ContentView</strong>，并建立constraint让<code>contentView</code>的四个边界与<code>scrollView</code>的四个边界相同。</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">viewDidLoad</span> <span class="p">{</span>
+    <span class="p">[</span><span class="nb">super</span> <span class="n">viewDidLoad</span><span class="p">];</span>
+    
+    <span class="n">contentView</span> <span class="o">=</span> <span class="p">[[[</span><span class="bp">NSBundle</span> <span class="n">mainBundle</span><span class="p">]</span> <span class="nl">loadNibNamed</span><span class="p">:</span><span class="s">@&quot;ContentView&quot;</span> <span class="nl">owner</span><span class="p">:</span><span class="nb">self</span> <span class="nl">options</span><span class="p">:</span><span class="nb">nil</span><span class="p">]</span> <span class="nl">objectAtIndex</span><span class="p">:</span><span class="mi">0</span><span class="p">];</span>
+    <span class="p">[</span><span class="nb">self</span><span class="p">.</span><span class="n">scrollView</span> <span class="nl">addSubview</span><span class="p">:</span><span class="n">contentView</span><span class="p">];</span>
+    
+    <span class="p">[</span><span class="nb">self</span><span class="p">.</span><span class="n">scrollView</span> <span class="nl">mas_makeConstraints</span><span class="p">:</span><span class="o">^</span><span class="p">(</span><span class="n">MASConstraintMaker</span> <span class="o">*</span><span class="n">make</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">make</span><span class="p">.</span><span class="n">edges</span><span class="p">.</span><span class="n">equalTo</span><span class="p">(</span><span class="n">contentView</span><span class="p">);</span>
+    <span class="p">}];</span>
+<span class="p">}</span></code></pre></div>
+
+<p>7 . 在<strong>AutoLayout</strong>布局生效后，根据<strong>scrollView</strong>的实际宽高调整<strong>contentView</strong>的外连constraint，再借此调整<strong>contentView</strong>自身宽高的大小。</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">viewDidLayoutSubviews</span> <span class="p">{</span>
+    <span class="n">contentView</span><span class="p">.</span><span class="n">widthConstrait</span><span class="p">.</span><span class="n">constant</span> <span class="o">=</span> <span class="nb">self</span><span class="p">.</span><span class="n">scrollView</span><span class="p">.</span><span class="n">frame</span><span class="p">.</span><span class="n">size</span><span class="p">.</span><span class="n">width</span><span class="p">;</span>
+    <span class="n">contentView</span><span class="p">.</span><span class="n">heightConstraint</span><span class="p">.</span><span class="n">constant</span> <span class="o">=</span> <span class="nb">self</span><span class="p">.</span><span class="n">scrollView</span><span class="p">.</span><span class="n">frame</span><span class="p">.</span><span class="n">size</span><span class="p">.</span><span class="n">height</span><span class="p">;</span>
+    
+    <span class="p">[</span><span class="n">contentView</span> <span class="nl">mas_makeConstraints</span><span class="p">:</span><span class="o">^</span><span class="p">(</span><span class="n">MASConstraintMaker</span> <span class="o">*</span><span class="n">make</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">make</span><span class="p">.</span><span class="n">width</span><span class="p">.</span><span class="n">equalTo</span><span class="p">([</span><span class="bp">NSNumber</span> <span class="nl">numberWithFloat</span><span class="p">:</span><span class="n">contentView</span><span class="p">.</span><span class="n">widthConstrait</span><span class="p">.</span><span class="n">constant</span> <span class="o">*</span> <span class="mi">3</span><span class="p">]);</span>
+        <span class="n">make</span><span class="p">.</span><span class="n">height</span><span class="p">.</span><span class="n">equalTo</span><span class="p">([</span><span class="bp">NSNumber</span> <span class="nl">numberWithFloat</span><span class="p">:</span><span class="n">contentView</span><span class="p">.</span><span class="n">heightConstraint</span><span class="p">.</span><span class="n">constant</span><span class="p">]);</span>
+    <span class="p">}];</span>
+    
+    <span class="p">[</span><span class="nb">super</span> <span class="n">viewDidLayoutSubviews</span><span class="p">];</span>
+<span class="p">}</span></code></pre></div>
+
+<h2 id="demo">Demo</h2>
+
+<p>做了一个demo，放在<a href="https://github.com/Jowyer/UIScrollViewAutoLayoutDemo">GitHub</a>上了。</p>
+
+<h2 id="reference">Reference</h2>
+<p><a href="http://code.tutsplus.com/tutorials/introduction-to-the-visual-format-language--cms-22715">tuts+</a></p>
+
+<p><a href="http://blog.shiqichan.com/UIScrollView-And-Autolayout/">十七蝉</a></p>
+
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>Copyright © 2015 - Jowyer Wang</li> 
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        
+      </div>
+
+      <div class="footer-col  footer-col-3">
+        <p class="text">Simplicity is the ultimate sophistication.
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+    <script>
+  var anchorForId = function (id) {
+    var anchor = document.createElement("a");
+    anchor.className = "header-link";
+    anchor.href      = "#" + id;
+    anchor.innerHTML = "<i class=\"fa fa-link\"></i>";
+    return anchor;
+  };
+
+  var linkifyAnchors = function (level, containingElement) {
+    var headers = containingElement.getElementsByTagName("h" + level);
+    for (var h = 0; h < headers.length; h++) {
+      var header = headers[h];
+
+      if (typeof header.id !== "undefined" && header.id !== "") {
+        header.appendChild(anchorForId(header.id));
+      }
+    }
+  };
+
+  document.onreadystatechange = function () {
+    if (this.readyState === "complete") {
+      var contentBlock = document.getElementsByClassName("post")[0];  //  || document.getElementsByClassName("page")[0] 
+      if (!contentBlock) {
+        return;
+      }
+      for (var level = 1; level <= 6; level++) {
+        linkifyAnchors(level, contentBlock);
+      }
+    }
+  };
+</script>
+
+
+  </body>
+
+</html>

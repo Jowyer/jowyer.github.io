@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Mobile Database -- Realm</title>
+    <meta name="description" content="Simplicity is the ultimate sophistication.
+">
+
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="canonical" href="/ios/2014/11/06/Realm.html">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/">Jowyer's Blog</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+          
+          <a class="page-link" href="/contact/">Contact</a>
+          
+        
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Mobile Database -- Realm</h1>
+    <p class="post-meta">Nov 6, 2014</p>
+  </header>
+
+  <article class="post-content">
+    <p><a href="http://jowyer.github.io/personal/2014/11/03/Mantle.html">上一篇博文</a>讲了数据持久化，这一篇就接着讲讲数据库。</p>
+
+<p>为什么要使用数据库？当有下面这些需求的时候，就应该考虑在app本地做数据库了：</p>
+
+<ul>
+  <li>Exectute queries locally and provide a better search and browsing experience</li>
+  <li>Provide an offline experience</li>
+  <li>Reduce server-side load by only fetching new or changed data</li>
+  <li>Handle a huge object graph with lots of relationships</li>
+  <li>Support undo and redo</li>
+</ul>
+
+<p>在iOS上使用数据库，通常是<a href="http://www.sqlite.org/">SQLite</a>，<a href="https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/CoreData/cdProgrammingGuide.html">Core Data</a>，和<a href="http://nshipster.com/core-data-libraries-and-utilities/">Core Data Libraries</a>。</p>
+
+<p>今天要介绍的<strong>Realm</strong>，号称要取代<em>SQLite</em>和<em>Core Data</em>。目前已支持<em>iOS</em>, <em>OS X</em>, <em>Android</em>平台，并且支持<em>Swift</em>语言。</p>
+
+<h2 id="orm">ORM</h2>
+<p>在介绍Realm之前，还是先讲两个概念。第一个，ORM：</p>
+
+<blockquote>
+  <p>Object-relational mapping is a technique that connects the rich objects of an application to tables in a relational database management system. Using ORM, the properties and relationships of the objects in an application can be easily stored and retrieved from a database without writing SQL statements directly and with less overall database access code.</p>
+</blockquote>
+
+<p>ORM中文解释为 对象/关系型数据映射，作用是把 对象模型 和 关系型数据库的表 建立对应关系。</p>
+
+<p>在实际开发中，程序员使用面向对象的技术操作数据，而当要把数据存储起来时，使用的却是关系型数据库，这样就造成了很多的不便。ORM在对象模型和关系数据库的表之间建立了一座桥梁，有了它，程序员就不需要再使用SQL语句操作数据库中的表，直接操作对象就可以实现数据的存储、查询、更改和删除等操作。</p>
+
+<h2 id="active-record-pattern">Active Record Pattern</h2>
+<p>从Ruby语言的<a href="http://guides.rubyonrails.org/active_record_basics.html">Active Record Pattern</a>受到启发，不少第三方类库都以此来为iOS实现了ORM。</p>
+
+<blockquote>
+  <p>In Active Record, objects carry both persistent data and behavior which operates on that data. Active Record takes the opinion that ensuring data access logic is part of the object will educate users of that object on how to write to and read from the database.</p>
+</blockquote>
+
+<p>简单的说，就是将<code>表</code>映射到<code>类</code>，将<code>行记录</code>映射到<code>实例对象</code>，将<code>字段</code>映射到对象的<code>属性</code>。</p>
+
+<p>用Active Record来构架ORM，会有如下这些好处：</p>
+
+<ul>
+  <li>Represent models and their data.</li>
+  <li>Represent associations between these models.</li>
+  <li>Represent inheritance hierarchies through related models.</li>
+  <li>Validate models before they get persisted to the database.</li>
+  <li>Perform database operations in an object-oriented fashion.</li>
+</ul>
+
+<p><a href="https://github.com/magicalpanda/MagicalRecord">Magical Record</a>和<strong>Realm</strong>正是如此实现的，所不同的是<a href="https://github.com/magicalpanda/MagicalRecord">Magical Record</a>的背后是Core Data，而<strong>Realm</strong>的后台则是操作自己的数据库。</p>
+
+<h2 id="realm">Realm</h2>
+<blockquote>
+  <p><a href="http://realm.io/">Realm</a> is a mobile database: a replacement for SQLite &amp; Core Data.</p>
+</blockquote>
+
+<p>终于说到正主了，下面是一些核心的概念。</p>
+
+<p>安装步骤和详细的文档请移步<a href="http://realm.io/docs/cocoa">Realm 官方文档</a>。API文档位于<a href="http://realm.io/docs/cocoa/api">Realm API</a>。</p>
+
+<h3 id="rlmrealm">RLMRealm</h3>
+<p>RLMRealm is the heart of the framework; it’s your access point to the underlying database, similar to a Core Data managed object context. For your coding convenience, there’s a singleton <code>defaultRealm</code>.</p>
+
+<h3 id="rlmobject">RLMObject</h3>
+<p>This is your realm model. The act of creating a model defines the schema of the database; to create a model you simply subclass <code>RLMObject</code> and define the <strong>fields</strong> you want to persist as <strong>properties</strong>.</p>
+
+<p>实际就是设计数据库表。</p>
+
+<h3 id="relationships">Relationships</h3>
+<p>You create one-to-many relationships between objects by simply declaring a <strong>property</strong> of the type of the <code>RLMObject</code> you want to refer to. You can create many-to-one and many-to-many relationships via a <strong>property</strong> of type <code>RLMArray</code>.</p>
+
+<h3 id="rlmarray">RLMArray</h3>
+<p>This class has an API similar to that of <code>NSArray</code>; you can use it to store multiple <code>RLMObject</code> instances and define relationships. Its has other hidden powers, too; it can sort <code>RLMObject</code> instances, query the database, and can perform aggregate queries.</p>
+
+<h3 id="write-transactions">Write Transactions</h3>
+<p>Any operations in the database such as creating, editing, or deleting objects must be performed within <strong>transactions</strong> which are delineated by the <code>beginWriteTransaction()</code> and <code>commitWriteTransaction()</code> operations.</p>
+
+<p>所有增删改的操作都要在这两句代码中间完成。</p>
+
+<div class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="k">func</span> <span class="nf">updateSpecimen</span><span class="p">()</span> <span class="p">{</span>
+<span class="k">let</span> <span class="n">realm</span> <span class="o">=</span> <span class="n">RLMRealm</span><span class="p">.</span><span class="n">defaultRealm</span><span class="p">()</span>
+<span class="n">realm</span><span class="p">.</span><span class="n">beginWriteTransaction</span><span class="p">()</span>
+
+<span class="n">specimen</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">nameTextField</span><span class="p">.</span><span class="n">text</span>
+<span class="n">specimen</span><span class="p">.</span><span class="n">category</span> <span class="o">=</span> <span class="n">selectedCategory</span>
+<span class="n">specimen</span><span class="p">.</span><span class="n">specimenDescription</span> <span class="o">=</span> <span class="n">descriptionTextField</span><span class="p">.</span><span class="n">text</span>
+
+<span class="n">realm</span><span class="p">.</span><span class="n">commitWriteTransaction</span><span class="p">()</span>
+<span class="p">}</span></code></pre></div>
+
+<h3 id="queries">Queries</h3>
+<p>To retrieve objects from the database you’ll need to use queries. The simplest form of a query is calling <code>allObjects()</code> on an <code>RLMObject</code>. If your data retrieval needs are more complex you can make use of <strong>predicates</strong>, chain your queries, and order your results as well.</p>
+
+<h3 id="ignored-properties">Ignored Properties</h3>
+<blockquote>
+  <p>You want the <code>distance</code> as part of the model, but you don’t want Realm to persist the field.</p>
+</blockquote>
+
+<p>Realm supports properties like this and calls them <strong>ignored properties</strong>.<br />
+To define your list of ignored property you simply implement the method <code>ignoredProperties()</code> and return an <strong>array</strong> of properties that you don’t want persisted.</p>
+
+<p>对于不在Realm数据库中保存的字段，却想其作为RLMObject的属性而存在。这种情况时，就使用<strong>ignored properties</strong>。</p>
+
+<div class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="n">dynamic</span> <span class="k">var</span> <span class="nl">distance</span><span class="p">:</span> <span class="n">Double</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">func</span> <span class="n">ignoredProperties</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="bp">NSArray</span> <span class="p">{</span>
+<span class="k">let</span> <span class="n">propertiesToIgnore</span> <span class="o">=</span> <span class="p">[</span><span class="n">distance</span><span class="p">]</span>
+<span class="k">return</span> <span class="n">propertiesToIgnore</span>
+<span class="p">}</span></code></pre></div>
+
+<h3 id="realm-path">Realm Path</h3>
+<p>Realm数据库在app中存放的路径，通过下面这行语句可以找到，用<strong>Realm Browser</strong>打开：</p>
+
+<div class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="n">println</span><span class="p">(</span><span class="n">RLMRealm</span><span class="p">.</span><span class="n">defaultRealm</span><span class="p">().</span><span class="n">path</span><span class="p">)</span></code></pre></div>
+
+<h2 id="realm-object--mantle-object">Realm Object 与 Mantle Object的差异</h2>
+
+<p>Realm Object：<code>RLMObject</code>和<a href="http://jowyer.github.io/personal/2014/11/03/Mantle.html">上一篇博文</a>提到的Mantle Object：<code>MTLModel</code>都适合用来构架app的<strong>model</strong>层，下面来看看它们的差异。</p>
+
+<h3 id="section">数据持久化</h3>
+<ul>
+  <li><code>RLMObject</code>没有实现<code>&lt;NSCoding&gt;</code>协议，但是直接与Realm数据库交互，在Realm数据库中完成持久化。</li>
+  <li><code>MTLModel</code>实现了<code>&lt;NSCoding&gt;</code>协议，具备持久化的可能，后续可以在<code>Core Data</code>，<code>NSKeyedArchiver</code>或者数据库中完成持久化。</li>
+</ul>
+
+<h3 id="copyable">Copyable</h3>
+<ul>
+  <li><code>RLMObject</code>没有实现<code>&lt;NSCopying&gt;</code>协议，不能<code>copy</code>。</li>
+  <li><code>MTLModel</code>实现了<code>&lt;NSCopying&gt;</code>协议，该类及其子类都可以进行<code>copy</code>操作。</li>
+</ul>
+
+<h3 id="json">JSON交互</h3>
+<ul>
+  <li><code>RLMObject</code>官方提供了<a href="http://realm.io/docs/cocoa/#rest-apis">示例</a>，通过构造一个<code>RLMObject</code>，其结构、属性名称和<code>JSON</code>的结构、键值完全一样，则可以用<code>[RLMObject createOrUpdateInDefaultRealmWithObject:]</code>方法来更新。缺点是<code>RLMObject</code>的属性名必须和服务器端的完全一样。</li>
+  <li><code>MTLModel</code>通过实现<code>&lt;MTLJSONSerializing&gt;</code>协议，则可以方便的实现<code>MTLModel</code>属性名与服务器端属性名的映射，<code>MTLModel</code>对象与<code>JSON</code>格式的双向序列化方法。</li>
+</ul>
+
+<h3 id="section-1">概括</h3>
+<p>可以看出，如果不需要数据库的支持，那么用Mantle Object更方便一些。</p>
+
+<p>反之如果要使用数据库，则Realm Object天生就可以和自己的数据库相连；如果还想实现类似Mantle Object的<code>Copyable</code>，易于<code>JSON交互</code>的特性，则可以引入第三方库<a href="https://github.com/matthewcheok/Realm-JSON">Realm-JSON</a>。</p>
+
+<h2 id="reference">Reference</h2>
+<p><a href="http://www.raywenderlich.com/81615/introduction-to-realm">Raywenderlich</a></p>
+
+<p><a href="https://github.com/realm/realm-cocoa">GitHub</a></p>
+
+<p><a href="https://happyingly.github.io/blog/2014/07/26/realmshu-ju-ku-shi-yong-jie-shao-1/">中文介绍</a></p>
+
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>Copyright © 2015 - Jowyer Wang</li> 
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        
+      </div>
+
+      <div class="footer-col  footer-col-3">
+        <p class="text">Simplicity is the ultimate sophistication.
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+    <script>
+  var anchorForId = function (id) {
+    var anchor = document.createElement("a");
+    anchor.className = "header-link";
+    anchor.href      = "#" + id;
+    anchor.innerHTML = "<i class=\"fa fa-link\"></i>";
+    return anchor;
+  };
+
+  var linkifyAnchors = function (level, containingElement) {
+    var headers = containingElement.getElementsByTagName("h" + level);
+    for (var h = 0; h < headers.length; h++) {
+      var header = headers[h];
+
+      if (typeof header.id !== "undefined" && header.id !== "") {
+        header.appendChild(anchorForId(header.id));
+      }
+    }
+  };
+
+  document.onreadystatechange = function () {
+    if (this.readyState === "complete") {
+      var contentBlock = document.getElementsByClassName("post")[0];  //  || document.getElementsByClassName("page")[0] 
+      if (!contentBlock) {
+        return;
+      }
+      for (var level = 1; level <= 6; level++) {
+        linkifyAnchors(level, contentBlock);
+      }
+    }
+  };
+</script>
+
+
+  </body>
+
+</html>

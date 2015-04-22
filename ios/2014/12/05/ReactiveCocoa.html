@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>ReactiveCocoa</title>
+    <meta name="description" content="Simplicity is the ultimate sophistication.
+">
+
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="canonical" href="/ios/2014/12/05/ReactiveCocoa.html">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/">Jowyer's Blog</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+          
+          <a class="page-link" href="/contact/">Contact</a>
+          
+        
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">ReactiveCocoa</h1>
+    <p class="post-meta">Dec 5, 2014</p>
+  </header>
+
+  <article class="post-content">
+    <p>就像<a href="https://twitter.com/mattt">Mattt Thompson</a>在他的<a href="http://nshipster.com/reactivecocoa/">博客</a>里讲的一样，<strong>Objective-C</strong>语言经历了四次进化，最新的一次是吸收了其他语言的经典语法，以<strong>Objective-C</strong>的方式来重新实现。</p>
+
+<p>之前在<a href="http://jowyer.github.io/personal/2014/11/06/Realm.html#active-record-pattern">Mobile Database – Realm</a>那篇博客里介绍的，<strong>Active Record Pattern</strong>即是从Ruby语言借鉴过来的，今天要介绍的<a href="https://github.com/ReactiveCocoa/ReactiveCocoa">ReactiveCocoa</a>也是如此。</p>
+
+<h2 id="introduction">Introduction</h2>
+
+<blockquote>
+  <p>ReactiveCocoa is an open source library that brings Functional Reactive Programming paradigm to Objective-C. </p>
+
+  <p>ReactiveCocoa defines a standard interface for events, so they can be more easily chained, filtered and composed using a basic set of tools.</p>
+</blockquote>
+
+<h3 id="functional-reactive-programming">Functional Reactive Programming</h3>
+
+<p><a href="http://en.wikipedia.org/wiki/Functional_reactive_programming">Functional Reactive Programming</a> (FRP) is a way of thinking about software in terms of transforming inputs to produce output continuously over time.</p>
+
+<blockquote>
+  <p>在命令式编程环境中，a = b + c 表示将表达式的结果赋给a，而之后改变b或c的值不会影响a。但在响应式编程中，a的值会随着b或c的更新而更新。</p>
+
+  <p>Excel就是响应式编程的一个例子。单元格可以包含字面值或类似”=B1+C1″的公式，而包含公式的单元格的值会依据其他单元格的值的变化而变化 。</p>
+</blockquote>
+
+<p><strong>ReactiveCocoa</strong> combines a couple of programming styles:</p>
+
+<ul>
+  <li><a href="http://en.wikipedia.org/wiki/Functional_programming">Functional Programming</a> which makes use of higher order functions, i.e. functions which take other functions as their arguments</li>
+  <li><a href="http://en.wikipedia.org/wiki/Reactive_programming">Reactive Programming</a> which focuses of data-flows and change propagation</li>
+</ul>
+
+<h2 id="when-to-use-reactivecocoa">When to use ReactiveCocoa</h2>
+
+<ul>
+  <li><strong>Handling Asynchronous Or Event-driven Data Sources:</strong> Much of Cocoa programming is focused on reacting to user events or changes in application state.</li>
+  <li><strong>Chaining Dependent Operations:</strong> Dependencies are most often found in network requests, where a previous request to the server needs to complete before the next one can be constructed.</li>
+  <li><strong>Parallelizing Independent Work:</strong> Working with independent data sets in parallel and then combining them into a final result is non-trivial in Cocoa, and often involves a lot of synchronization.</li>
+  <li><strong>Simplifying Collection Transformations:</strong> Higher-order functions like <code>map</code>, <code>filter</code>, <code>fold/reduce</code> are sorely missing from <code>Foundation</code>.</li>
+</ul>
+
+<h2 id="prerequisite">Prerequisite</h2>
+
+<h3 id="weakify-strongify">@weakify @strongify</h3>
+<p>Blocks capture and retain values from the enclosing scope, therefore referencing <strong><em>self</em></strong> in a block actually creates a <strong>strong reference cycle to self</strong> (<a href="https://developer.apple.com/library/ios/documentation/cocoa/conceptual/ProgrammingWithObjectiveC/WorkingwithBlocks/WorkingwithBlocks.html#//apple_ref/doc/uid/TP40011210-CH8-SW16">Apple</a>).</p>
+
+<p>The <a href="http://aceontech.com/objc/ios/2014/01/10/weakify-a-more-elegant-solution-to-weakself.html">obvious solution</a> to this problem is to define a weak reference to <em>self</em> before the block (let’s call it <code>weakSelf</code>), and use that instead while calling into <em>self</em> from a block. For example:</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="c1">// Create a weak reference to self</span>
+<span class="k">__weak</span> <span class="k">typeof</span><span class="p">(</span><span class="nb">self</span><span class="p">)</span><span class="n">weakSelf</span> <span class="o">=</span> <span class="nb">self</span><span class="p">;</span>
+<span class="p">[</span><span class="nb">self</span><span class="p">.</span><span class="n">context</span> <span class="nl">performBlock</span><span class="p">:</span><span class="o">^</span><span class="p">{</span>
+    <span class="c1">// Create a strong reference to self, based on the previous weak reference.</span>
+    <span class="c1">// This prevents a direct strong reference so we don&#39;t get into a retain cycle to self.</span>
+    <span class="c1">// Also, it prevents self from becoming nil half-way, but still properly decrements the retain count</span>
+    <span class="c1">// at the end of the block.</span>
+    <span class="k">__strong</span> <span class="k">typeof</span><span class="p">(</span><span class="n">weakSelf</span><span class="p">)</span><span class="n">strongSelf</span> <span class="o">=</span> <span class="n">weakSelf</span><span class="p">;</span>
+
+    <span class="c1">// Do something else</span>
+
+    <span class="bp">NSError</span> <span class="o">*</span><span class="n">error</span><span class="p">;</span>
+    <span class="p">[</span><span class="n">strongSelf</span><span class="p">.</span><span class="n">context</span> <span class="nl">save</span><span class="p">:</span><span class="o">&amp;</span><span class="n">error</span><span class="p">];</span>
+
+    <span class="c1">// Do something else</span>
+<span class="p">}];</span></code></pre></div>
+
+<p>Yet we can adopt a more elegant solution to this by using the <strong>@weakify()</strong> and <strong>@strongify()</strong> macros provided by the <a href="https://github.com/jspahrsummers/libextobjc">libextobjc</a> library.</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="cp">#import &lt;EXTScope.h&gt;</span>
+<span class="c1">// #import &quot;RACEXTScope.h&quot;   Use this with ReactiveCocoa..</span>
+
+<span class="c1">// Do stuff</span>
+<span class="p">@</span><span class="n">weakify</span><span class="p">(</span><span class="nb">self</span><span class="p">)</span>
+<span class="p">[</span><span class="nb">self</span><span class="p">.</span><span class="n">context</span> <span class="nl">performBlock</span><span class="p">:</span><span class="o">^</span><span class="p">{</span>
+    <span class="c1">// Analog to strongSelf in previous code snippet.</span>
+    <span class="p">@</span><span class="n">strongify</span><span class="p">(</span><span class="nb">self</span><span class="p">)</span>
+
+    <span class="c1">// You can just reference self as you normally would. Hurray.</span>
+    <span class="bp">NSError</span> <span class="o">*</span><span class="n">error</span><span class="p">;</span>
+    <span class="p">[</span><span class="nb">self</span><span class="p">.</span><span class="n">context</span> <span class="nl">save</span><span class="p">:</span><span class="o">&amp;</span><span class="n">error</span><span class="p">];</span>
+
+    <span class="c1">// Do something</span>
+<span class="p">}];</span></code></pre></div>
+
+<p>The <strong>@weakify</strong> macro allows you to create <em>shadow</em> variables which are weak references (<em>you can pass multiple variables if you require multiple weak references</em>), the <strong>@strongify</strong> macro allows you to create strong references to variables that were previously passed to <strong>@weakify</strong>.</p>
+
+<h2 id="overview">Overview</h2>
+
+<p>ReactiveCocoa is comprised of two major components: <strong>signals</strong> (<code>RACSignal</code>) and <strong>sequences</strong> (<code>RACSequence</code>).</p>
+
+<p>Both signals and sequences are kinds of <strong>streams</strong> (any series of object values), sharing many of the same operators. ReactiveCocoa has done well to abstract a wide scope of functionality into a semantically dense, consistent design: signals are a <strong>push-driven</strong> stream, and sequences are a <strong>pull-driven</strong> stream.</p>
+
+<h2 id="racsignal">RACSignal</h2>
+
+<p><code>RACSignal</code> send a <strong>stream</strong> of <strong>events</strong> to their subscribers. There are three types of <strong>events</strong> to know: <code>next</code>, <code>error</code> and <code>completed</code>. A signal may send any number of <em>next events</em> before it <em>terminates after an error</em>, or it <em>completes</em>.</p>
+
+<p>The lifetime of a signal consists of any number of <code>next</code> events, followed by one <code>error</code> or <code>completed</code> event (but not both).</p>
+
+<p><code>RACSignal</code> has a number of methods you can use to subscribe to these different event types.</p>
+
+<p>Each operation on an <code>RACSignal</code> also returns an <code>RACSignal</code>.</p>
+
+<h2 id="basic-operators">Basic Operators</h2>
+
+<h3 id="performing-side-effects-with-signals">Performing side effects with signals</h3>
+<p>Most signals start out “cold”, which means that they will NOT do any work until <strong>subscription</strong>.</p>
+
+<p>Upon subscription, a signal or its subscribers can perform <strong><em>side effects</em></strong>, like logging to the console, making a network request, updating the user interface, etc.</p>
+
+<p>Side effects can also be <strong>injected</strong> into a signal, where they won’t be performed immediately, but will instead take effect with each subscription later.</p>
+
+<h4 id="subscription">Subscription</h4>
+<p>The <a href="https://github.com/ReactiveCocoa/ReactiveCocoa/blob/master/ReactiveCocoa/RACSignal.h">-subscribe…</a> methods give you access to the current and future values in a signal:</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="n">RACSignal</span> <span class="o">*</span><span class="n">letters</span> <span class="o">=</span> <span class="p">[</span><span class="s">@&quot;A B C D E F G H I&quot;</span> <span class="nl">componentsSeparatedByString</span><span class="p">:</span><span class="s">@&quot; &quot;</span><span class="p">].</span><span class="n">rac_sequence</span><span class="p">.</span><span class="n">signal</span><span class="p">;</span>
+
+<span class="c1">// Outputs: A B C D E F G H I</span>
+<span class="p">[</span><span class="n">letters</span> <span class="nl">subscribeNext</span><span class="p">:</span><span class="o">^</span><span class="p">(</span><span class="bp">NSString</span> <span class="o">*</span><span class="n">x</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;%@&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>
+<span class="p">}];</span></code></pre></div>
+
+<h4 id="injecting-effects">Injecting effects</h4>
+
+<p>The <a href="https://github.com/ReactiveCocoa/ReactiveCocoa/blob/master/ReactiveCocoa/RACSignal+Operations.h">-do…</a> methods add side effects to a signal without actually subscribing to it:</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="k">__block</span> <span class="kt">unsigned</span> <span class="n">subscriptions</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+<span class="n">RACSignal</span> <span class="o">*</span><span class="n">loggingSignal</span> <span class="o">=</span> <span class="p">[</span><span class="n">RACSignal</span> <span class="nl">createSignal</span><span class="p">:</span><span class="o">^</span> <span class="n">RACDisposable</span> <span class="o">*</span> <span class="p">(</span><span class="kt">id</span><span class="o">&lt;</span><span class="n">RACSubscriber</span><span class="o">&gt;</span> <span class="n">subscriber</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">subscriptions</span><span class="o">++</span><span class="p">;</span>
+    <span class="p">[</span><span class="n">subscriber</span> <span class="n">sendCompleted</span><span class="p">];</span>
+    <span class="k">return</span> <span class="nb">nil</span><span class="p">;</span>
+<span class="p">}];</span>
+
+<span class="c1">// Does not output anything yet</span>
+<span class="n">loggingSignal</span> <span class="o">=</span> <span class="p">[</span><span class="n">loggingSignal</span> <span class="nl">doCompleted</span><span class="p">:</span><span class="o">^</span><span class="p">{</span>
+    <span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;about to complete subscription %u&quot;</span><span class="p">,</span> <span class="n">subscriptions</span><span class="p">);</span>
+<span class="p">}];</span>
+
+<span class="c1">// Outputs:</span>
+<span class="c1">// about to complete subscription 1</span>
+<span class="c1">// subscription 1</span>
+<span class="p">[</span><span class="n">loggingSignal</span> <span class="nl">subscribeCompleted</span><span class="p">:</span><span class="o">^</span><span class="p">{</span>
+    <span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;subscription %u&quot;</span><span class="p">,</span> <span class="n">subscriptions</span><span class="p">);</span>
+<span class="p">}];</span></code></pre></div>
+
+<h3 id="transforming-streams">Transforming streams</h3>
+<p>These operators transform a single stream into a new stream.</p>
+
+<h4 id="filtering">Filtering</h4>
+<p>The <code>-filter:</code> method uses a block to test each value, including it into the resulting stream only if the test passes.</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="p">[</span><span class="nb">self</span><span class="p">.</span><span class="n">usernameTextField</span><span class="p">.</span><span class="n">rac_textSignal</span> <span class="nl">filter</span><span class="p">:</span><span class="o">^</span><span class="kt">BOOL</span><span class="p">(</span><span class="bp">NSString</span> <span class="o">*</span><span class="n">text</span><span class="p">)</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="n">text</span><span class="p">.</span><span class="n">length</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">;</span>
+<span class="p">}];</span></code></pre></div>
+
+<h4 id="mapping">Mapping</h4>
+<p>The <code>-map:</code> method is used to transform the values in a stream, and create a new stream with the results.</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="p">[</span><span class="nb">self</span><span class="p">.</span><span class="n">usernameTextField</span><span class="p">.</span><span class="n">rac_textSignal</span> <span class="nl">map</span><span class="p">:</span><span class="o">^</span><span class="kt">id</span><span class="p">(</span><span class="bp">NSString</span> <span class="o">*</span><span class="n">text</span><span class="p">)</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="l">@(</span><span class="p">[</span><span class="nb">self</span> <span class="nl">isValidUsername</span><span class="p">:</span><span class="n">text</span><span class="p">]</span><span class="l">)</span><span class="p">;</span>
+<span class="p">}];</span>
+
+<span class="p">-</span> <span class="p">(</span><span class="kt">BOOL</span><span class="p">)</span><span class="nf">isValidUsername:</span><span class="p">(</span><span class="bp">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nv">username</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="n">username</span><span class="p">.</span><span class="n">length</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">;</span>
+<span class="p">}</span></code></pre></div>
+
+<h3 id="combining-signals">Combining signals</h3>
+<p>These operators combine multiple signals into a single new <code>RACSignal</code>.</p>
+
+<h4 id="combining-latest-values">Combining latest values</h4>
+<p>The <code>+combineLatest:reduce:</code> methods will watch multiple signals for changes, and then send the latest values from <em>all</em> of them when a change occurs. Each time either of the multiple source signals emits a new value, the reduce block executes, and the value it returns is sent as the next value of the combined signal.</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="n">RACSignal</span> <span class="o">*</span><span class="n">signUpActiveSignal</span> <span class="o">=</span>
+<span class="p">[</span><span class="n">RACSignal</span> <span class="nl">combineLatest</span><span class="p">:</span><span class="l">@[</span><span class="n">validUsernameSignal</span><span class="p">,</span> <span class="n">validPasswordSignal</span><span class="l">]</span> <span class="nl">reduce</span><span class="p">:</span><span class="o">^</span><span class="kt">id</span><span class="p">(</span><span class="bp">NSNumber</span> <span class="o">*</span><span class="n">usernameValid</span><span class="p">,</span> <span class="bp">NSNumber</span> <span class="o">*</span><span class="n">passwordValid</span><span class="p">)</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="l">@(</span><span class="p">[</span><span class="n">usernameValid</span> <span class="n">boolValue</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="p">[</span><span class="n">passwordValid</span> <span class="n">boolValue</span><span class="p">]</span><span class="l">)</span><span class="p">;</span>
+<span class="p">}];</span></code></pre></div>
+
+<h4 id="sequencing">Sequencing</h4>
+<p>The <code>-then:</code> method waits until a <strong>completed</strong> event is emitted, then subscribes to the signal returned by its block parameter. This effectively <em>passes control from one signal to the next</em>.</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="p">-</span> <span class="p">(</span><span class="n">RACSignal</span> <span class="o">*</span><span class="p">)</span><span class="nf">requestAccessToTwitterSignal</span> <span class="p">{</span>  
+    <span class="c1">// 1 - define an error</span>
+    <span class="bp">NSError</span> <span class="o">*</span><span class="n">accessError</span> <span class="o">=</span> <span class="p">[</span><span class="bp">NSError</span> <span class="nl">errorWithDomain</span><span class="p">:</span><span class="n">RWTwitterInstantDomain</span>
+                                               <span class="nl">code</span><span class="p">:</span><span class="n">RWTwitterInstantErrorAccessDenied</span>
+                                           <span class="nl">userInfo</span><span class="p">:</span><span class="nb">nil</span><span class="p">];</span>
+    
+    <span class="c1">// 2 - create the signal</span>
+    <span class="p">@</span><span class="n">weakify</span><span class="p">(</span><span class="nb">self</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">RACSignal</span> <span class="nl">createSignal</span><span class="p">:</span><span class="o">^</span><span class="n">RACDisposable</span> <span class="o">*</span><span class="p">(</span><span class="kt">id</span><span class="o">&lt;</span><span class="n">RACSubscriber</span><span class="o">&gt;</span> <span class="n">subscriber</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// 3 - request access to twitter</span>
+        <span class="p">@</span><span class="n">strongify</span><span class="p">(</span><span class="nb">self</span><span class="p">)</span>
+        <span class="p">[</span><span class="nb">self</span><span class="p">.</span><span class="n">accountStore</span>
+         <span class="nl">requestAccessToAccountsWithType</span><span class="p">:</span><span class="nb">self</span><span class="p">.</span><span class="n">twitterAccountType</span>
+         <span class="nl">options</span><span class="p">:</span><span class="nb">nil</span>
+         <span class="nl">completion</span><span class="p">:</span><span class="o">^</span><span class="p">(</span><span class="kt">BOOL</span> <span class="n">granted</span><span class="p">,</span> <span class="bp">NSError</span> <span class="o">*</span><span class="n">error</span><span class="p">)</span> <span class="p">{</span>
+             <span class="c1">// 4 - handle the response</span>
+             <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">granted</span><span class="p">)</span> <span class="p">{</span>
+                 <span class="p">[</span><span class="n">subscriber</span> <span class="nl">sendError</span><span class="p">:</span><span class="n">accessError</span><span class="p">];</span>
+             <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                 <span class="p">[</span><span class="n">subscriber</span> <span class="nl">sendNext</span><span class="p">:</span><span class="nb">nil</span><span class="p">];</span>
+                 <span class="p">[</span><span class="n">subscriber</span> <span class="n">sendCompleted</span><span class="p">];</span>
+             <span class="p">}</span>
+         <span class="p">}];</span>
+        <span class="k">return</span> <span class="nb">nil</span><span class="p">;</span>
+    <span class="p">}];</span>
+<span class="p">}</span>
+
+<span class="p">@</span><span class="n">weakify</span><span class="p">(</span><span class="nb">self</span><span class="p">)</span>
+<span class="p">[[[</span><span class="nb">self</span> <span class="n">requestAccessToTwitterSignal</span><span class="p">]</span>
+  <span class="nl">then</span><span class="p">:</span><span class="o">^</span><span class="n">RACSignal</span> <span class="o">*</span><span class="p">{</span>
+    <span class="p">@</span><span class="n">strongify</span><span class="p">(</span><span class="nb">self</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">self</span><span class="p">.</span><span class="n">searchText</span><span class="p">.</span><span class="n">rac_textSignal</span><span class="p">;</span>
+  <span class="p">}]</span>
+  <span class="nl">subscribeNext</span><span class="p">:</span><span class="o">^</span><span class="p">(</span><span class="kt">id</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;%@&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>
+  <span class="p">}</span> <span class="nl">error</span><span class="p">:</span><span class="o">^</span><span class="p">(</span><span class="bp">NSError</span> <span class="o">*</span><span class="n">error</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;An error occurred: %@&quot;</span><span class="p">,</span> <span class="n">error</span><span class="p">);</span>
+  <span class="p">}];</span></code></pre></div>
+
+<p>The <code>-then:</code> method passes <strong>error</strong> events through. Therefore the final <code>subscribeNext:error:</code> block still receives errors emitted by the initial access-requesting step.</p>
+
+<p>This is most useful for executing all the <em>side effects</em> of one signal, then starting another, and only returning the second signal’s values.</p>
+
+<h2 id="combining-streams">Combining streams</h2>
+<p>These operators combine multiple streams into a single new stream.</p>
+
+<h3 id="mapping-and-flattening">Mapping and flattening</h3>
+<p><code>-flattenMap:</code> is used to transform each of a stream’s values into a <em>new stream</em>. Then, all of the streams returned will be flattened down into a single stream. In other words, it’s <code>-map:</code> followed by <code>-flatten</code>.</p>
+
+<p>An outer signal that contains an inner signal is called the <strong><em>signal of signals</em></strong>. Use <code>-flattenMap:</code> to unwrap it.</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="p">-(</span><span class="n">RACSignal</span> <span class="o">*</span><span class="p">)</span><span class="nf">signInSignal</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="p">[</span><span class="n">RACSignal</span> <span class="nl">createSignal</span><span class="p">:</span><span class="o">^</span><span class="n">RACDisposable</span> <span class="o">*</span><span class="p">(</span><span class="kt">id</span><span class="o">&lt;</span><span class="n">RACSubscriber</span><span class="o">&gt;</span> <span class="n">subscriber</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">[</span><span class="nb">self</span><span class="p">.</span><span class="n">signInService</span>
+     <span class="nl">signInWithUsername</span><span class="p">:</span><span class="nb">self</span><span class="p">.</span><span class="n">usernameTextField</span><span class="p">.</span><span class="n">text</span>
+     <span class="nl">password</span><span class="p">:</span><span class="nb">self</span><span class="p">.</span><span class="n">passwordTextField</span><span class="p">.</span><span class="n">text</span>
+     <span class="nl">complete</span><span class="p">:</span><span class="o">^</span><span class="p">(</span><span class="kt">BOOL</span> <span class="n">success</span><span class="p">)</span> <span class="p">{</span>
+       <span class="p">[</span><span class="n">subscriber</span> <span class="nl">sendNext</span><span class="p">:</span><span class="l">@(</span><span class="n">success</span><span class="l">)</span><span class="p">];</span>
+       <span class="p">[</span><span class="n">subscriber</span> <span class="n">sendCompleted</span><span class="p">];</span>
+     <span class="p">}];</span>
+    <span class="k">return</span> <span class="nb">nil</span><span class="p">;</span>
+  <span class="p">}];</span>
+<span class="p">}</span>
+
+<span class="p">[[[</span><span class="nb">self</span><span class="p">.</span><span class="n">signInButton</span>
+   <span class="nl">rac_signalForControlEvents</span><span class="p">:</span><span class="n">UIControlEventTouchUpInside</span><span class="p">]</span>
+   <span class="nl">flattenMap</span><span class="p">:</span><span class="o">^</span><span class="kt">id</span><span class="p">(</span><span class="kt">id</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span>
+     <span class="k">return</span> <span class="p">[</span><span class="nb">self</span> <span class="n">signInSignal</span><span class="p">];</span>
+   <span class="p">}]</span>
+   <span class="nl">subscribeNext</span><span class="p">:</span><span class="o">^</span><span class="p">(</span><span class="kt">id</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span>
+     <span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;Sign in result: %@&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>
+   <span class="p">}];</span></code></pre></div>
+
+<h3 id="threading">Threading</h3>
+<p>Although events are guaranteed to be serial, sometimes stronger guarantees are needed, like when performing UI updates (which must occur on the main thread).</p>
+
+<p>Whenever such a guarantee is important, the <code>-deliverOn:</code> operator should be used to force a signal’s events to arrive on a specific <code>RACScheduler</code>.</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="p">[[[[[[</span><span class="nb">self</span> <span class="n">requestAccessToTwitterSignal</span><span class="p">]</span>
+  <span class="nl">then</span><span class="p">:</span><span class="o">^</span><span class="n">RACSignal</span> <span class="o">*</span><span class="p">{</span>
+    <span class="p">@</span><span class="n">strongify</span><span class="p">(</span><span class="nb">self</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">self</span><span class="p">.</span><span class="n">searchText</span><span class="p">.</span><span class="n">rac_textSignal</span><span class="p">;</span>
+  <span class="p">}]</span>
+  <span class="nl">filter</span><span class="p">:</span><span class="o">^</span><span class="kt">BOOL</span><span class="p">(</span><span class="bp">NSString</span> <span class="o">*</span><span class="n">text</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">@</span><span class="n">strongify</span><span class="p">(</span><span class="nb">self</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="nb">self</span> <span class="nl">isValidSearchText</span><span class="p">:</span><span class="n">text</span><span class="p">];</span>
+  <span class="p">}]</span>
+  <span class="nl">flattenMap</span><span class="p">:</span><span class="o">^</span><span class="n">RACStream</span> <span class="o">*</span><span class="p">(</span><span class="bp">NSString</span> <span class="o">*</span><span class="n">text</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">@</span><span class="n">strongify</span><span class="p">(</span><span class="nb">self</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="nb">self</span> <span class="nl">signalForSearchWithText</span><span class="p">:</span><span class="n">text</span><span class="p">];</span>
+  <span class="p">}]</span>
+  <span class="nl">deliverOn</span><span class="p">:[</span><span class="n">RACScheduler</span> <span class="n">mainThreadScheduler</span><span class="p">]]</span>
+  <span class="nl">subscribeNext</span><span class="p">:</span><span class="o">^</span><span class="p">(</span><span class="kt">id</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;%@&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>
+  <span class="p">}</span> <span class="nl">error</span><span class="p">:</span><span class="o">^</span><span class="p">(</span><span class="bp">NSError</span> <span class="o">*</span><span class="n">error</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;An error occurred: %@&quot;</span><span class="p">,</span> <span class="n">error</span><span class="p">);</span>
+  <span class="p">}];</span></code></pre></div>
+
+<p>Generally, the use of <code>-deliverOn:</code> should be restricted to the end of a signal chain – e.g., before subscription, or before the values are bound to a property.</p>
+
+<h2 id="other-operations">Other Operations</h2>
+
+<h3 id="throttling">Throttling</h3>
+<p>The <code>-throttle:</code> operation will only send a next event if another next event isn’t received within the given time period. </p>
+
+<p>If a <code>next</code> is received, and then another <code>next</code> is received before <code>interval</code> seconds have passed, the first value is discarded.</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="p">[[[[[[[</span><span class="nb">self</span> <span class="n">requestAccessToTwitterSignal</span><span class="p">]</span>
+  <span class="nl">then</span><span class="p">:</span><span class="o">^</span><span class="n">RACSignal</span> <span class="o">*</span><span class="p">{</span>
+    <span class="p">@</span><span class="n">strongify</span><span class="p">(</span><span class="nb">self</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">self</span><span class="p">.</span><span class="n">searchText</span><span class="p">.</span><span class="n">rac_textSignal</span><span class="p">;</span>
+  <span class="p">}]</span>
+  <span class="nl">filter</span><span class="p">:</span><span class="o">^</span><span class="kt">BOOL</span><span class="p">(</span><span class="bp">NSString</span> <span class="o">*</span><span class="n">text</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">@</span><span class="n">strongify</span><span class="p">(</span><span class="nb">self</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="nb">self</span> <span class="nl">isValidSearchText</span><span class="p">:</span><span class="n">text</span><span class="p">];</span>
+  <span class="p">}]</span>
+  <span class="nl">throttle</span><span class="p">:</span><span class="mf">0.5</span><span class="p">]</span>
+  <span class="nl">flattenMap</span><span class="p">:</span><span class="o">^</span><span class="n">RACStream</span> <span class="o">*</span><span class="p">(</span><span class="bp">NSString</span> <span class="o">*</span><span class="n">text</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">@</span><span class="n">strongify</span><span class="p">(</span><span class="nb">self</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="nb">self</span> <span class="nl">signalForSearchWithText</span><span class="p">:</span><span class="n">text</span><span class="p">];</span>
+  <span class="p">}]</span>
+  <span class="nl">deliverOn</span><span class="p">:[</span><span class="n">RACScheduler</span> <span class="n">mainThreadScheduler</span><span class="p">]]</span>
+  <span class="nl">subscribeNext</span><span class="p">:</span><span class="o">^</span><span class="p">(</span><span class="bp">NSDictionary</span> <span class="o">*</span><span class="n">jsonSearchResult</span><span class="p">)</span> <span class="p">{</span>
+    <span class="bp">NSArray</span> <span class="o">*</span><span class="n">statuses</span> <span class="o">=</span> <span class="n">jsonSearchResult</span><span class="p">[</span><span class="s">@&quot;statuses&quot;</span><span class="p">];</span>
+    <span class="bp">NSArray</span> <span class="o">*</span><span class="n">tweets</span> <span class="o">=</span> <span class="p">[</span><span class="n">statuses</span> <span class="nl">linq_select</span><span class="p">:</span><span class="o">^</span><span class="kt">id</span><span class="p">(</span><span class="kt">id</span> <span class="n">tweet</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="p">[</span><span class="n">RWTweet</span> <span class="nl">tweetWithStatus</span><span class="p">:</span><span class="n">tweet</span><span class="p">];</span>
+    <span class="p">}];</span>
+    <span class="p">[</span><span class="nb">self</span><span class="p">.</span><span class="n">resultsViewController</span> <span class="nl">displayTweets</span><span class="p">:</span><span class="n">tweets</span><span class="p">];</span>
+  <span class="p">}</span> <span class="nl">error</span><span class="p">:</span><span class="o">^</span><span class="p">(</span><span class="bp">NSError</span> <span class="o">*</span><span class="n">error</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;An error occurred: %@&quot;</span><span class="p">,</span> <span class="n">error</span><span class="p">);</span>
+  <span class="p">}];</span></code></pre></div>
+
+<h2 id="macros">Macros</h2>
+
+<h3 id="rac">RAC</h3>
+
+<p>The <code>RAC</code> macro allows you to assign the <strong>output</strong> of a signal to the <strong>property</strong> of an <strong>object</strong>. It takes two arguments, the first is the object that contains the property to set and the second is the property name. Each time the signal emits a next event, the value that passes is assigned to the given property.</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="n">RACSignal</span> <span class="o">*</span><span class="n">validUsernameSignal</span> <span class="o">=</span>
+<span class="p">[</span><span class="nb">self</span><span class="p">.</span><span class="n">usernameTextField</span><span class="p">.</span><span class="n">rac_textSignal</span> <span class="nl">map</span><span class="p">:</span><span class="o">^</span><span class="kt">id</span><span class="p">(</span><span class="bp">NSString</span> <span class="o">*</span><span class="n">text</span><span class="p">)</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="l">@(</span><span class="p">[</span><span class="nb">self</span> <span class="nl">isValidUsername</span><span class="p">:</span><span class="n">text</span><span class="p">]</span><span class="l">)</span><span class="p">;</span>
+<span class="p">}];</span>
+     
+<span class="n">RAC</span><span class="p">(</span><span class="nb">self</span><span class="p">.</span><span class="n">usernameTextField</span><span class="p">,</span> <span class="n">backgroundColor</span><span class="p">)</span> <span class="o">=</span>
+<span class="p">[</span><span class="n">validUsernameSignal</span> <span class="nl">map</span><span class="p">:</span><span class="o">^</span><span class="kt">id</span><span class="p">(</span><span class="bp">NSNumber</span> <span class="o">*</span><span class="n">passwordValid</span><span class="p">)</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="p">[</span><span class="n">passwordValid</span> <span class="n">boolValue</span><span class="p">]</span> <span class="o">?</span> <span class="p">[</span><span class="bp">UIColor</span> <span class="n">clearColor</span><span class="p">]</span> <span class="o">:</span> <span class="p">[</span><span class="bp">UIColor</span> <span class="n">yellowColor</span><span class="p">];</span>
+<span class="p">}];</span></code></pre></div>
+
+<h3 id="racobserve">RACObserve</h3>
+
+<p>Returns a signal which sends the current value of the key path on subscription, then sends the new value every time it changes, and sends completed if self or observer is deallocated.</p>
+
+<p>It’s a kind of KVO using blocks.</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="p">[</span><span class="n">RACObserve</span><span class="p">(</span><span class="nb">self</span><span class="p">.</span><span class="n">textField</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span> <span class="nl">subscribeNext</span><span class="p">:</span><span class="o">^</span><span class="p">(</span><span class="bp">NSString</span> <span class="o">*</span><span class="n">newName</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;%@&quot;</span><span class="p">,</span> <span class="n">newName</span><span class="p">);</span>
+    <span class="p">}];</span></code></pre></div>
+
+<h2 id="referencereference"><a href="#Reference">Reference</a></h2>
+<p><a href="http://www.raywenderlich.com/62699/reactivecocoa-tutorial-pt1">Raywenderlich</a></p>
+
+<p><a href="http://nshipster.com/reactivecocoa/">NSHipster</a></p>
+
+<p><a href="http://limboy.me/ios/2013/06/19/frp-reactivecocoa.html">Limboy</a></p>
+
+<p><a href="http://blog.devtang.com/blog/2014/02/11/reactivecocoa-introduction/">唐巧</a></p>
+
+<p><a href="http://www.itiger.me/?p=38">iTiger</a></p>
+
+<p><a href="https://github.com/ReactiveCocoa/ReactiveCocoa/tree/master/Documentation">ReactiveCocoa Documentation</a></p>
+
+<p><a href="http://fuckingblocksyntax.com/">fuckingblocksyntax.com</a></p>
+
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>Copyright © 2015 - Jowyer Wang</li> 
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        
+      </div>
+
+      <div class="footer-col  footer-col-3">
+        <p class="text">Simplicity is the ultimate sophistication.
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+    <script>
+  var anchorForId = function (id) {
+    var anchor = document.createElement("a");
+    anchor.className = "header-link";
+    anchor.href      = "#" + id;
+    anchor.innerHTML = "<i class=\"fa fa-link\"></i>";
+    return anchor;
+  };
+
+  var linkifyAnchors = function (level, containingElement) {
+    var headers = containingElement.getElementsByTagName("h" + level);
+    for (var h = 0; h < headers.length; h++) {
+      var header = headers[h];
+
+      if (typeof header.id !== "undefined" && header.id !== "") {
+        header.appendChild(anchorForId(header.id));
+      }
+    }
+  };
+
+  document.onreadystatechange = function () {
+    if (this.readyState === "complete") {
+      var contentBlock = document.getElementsByClassName("post")[0];  //  || document.getElementsByClassName("page")[0] 
+      if (!contentBlock) {
+        return;
+      }
+      for (var level = 1; level <= 6; level++) {
+        linkifyAnchors(level, contentBlock);
+      }
+    }
+  };
+</script>
+
+
+  </body>
+
+</html>

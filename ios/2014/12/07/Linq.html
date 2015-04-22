@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Linq</title>
+    <meta name="description" content="Simplicity is the ultimate sophistication.
+">
+
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="canonical" href="/ios/2014/12/07/Linq.html">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/">Jowyer's Blog</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+          
+          <a class="page-link" href="/contact/">Contact</a>
+          
+        
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Linq</h1>
+    <p class="post-meta">Dec 7, 2014</p>
+  </header>
+
+  <article class="post-content">
+    <p>继续从其他语言吸收精华，这次是Linq from C#。</p>
+
+<h2 id="introduction-to-linq">Introduction to Linq</h2>
+
+<p>Linq was added to the C# language back in 2007. The name <strong><em>linq</em></strong> stands for <strong>Language Integrated Query</strong>, and as the name implies, its original aim was to more tightly integrate queries into the C# language.</p>
+
+<p>As an example, when querying database developers find themselves writing queries using SQL statements embedded within literal strings:</p>
+
+<pre><code>string query = "SELECT * FROM Person WHERE age &lt; 10"
+</code></pre>
+
+<p>The problem with the above code is that the SQL statements are <em>not checked by the compiler</em>, and as a result, errors will only surface at runtime. This is not a problem that is peculiar to C# - you will find SQL statements embedded within strings in virtually every language.</p>
+
+<p>With Linq queries are no longer literal strings, they are instead constructed using keywords that are part of the C# language itself:</p>
+
+<div class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="kt">var</span> <span class="n">query</span> <span class="p">=</span>  <span class="k">from</span> <span class="n">p</span> <span class="k">in</span> <span class="n">PersonCollection</span>
+               <span class="k">where</span> <span class="n">p</span><span class="p">.</span><span class="n">age</span> <span class="p">&lt;</span> <span class="m">10</span>
+               <span class="k">select</span> <span class="n">p</span><span class="p">;</span></code></pre></div>
+
+<p>This allows the compiler to check your query syntax, resulting in less error prone code.</p>
+
+<p>Whilst the application of Linq for querying database is obvious, Linq can be used to query practically anything. </p>
+
+<h2 id="linq-to-objective-c">Linq to Objective-C</h2>
+
+<p><a href="https://github.com/ColinEberhardt">Colin Eberhardt</a>为Linq做了Objective-C的<a href="https://github.com/ColinEberhardt/LinqToObjectiveC">实现</a>，扩展了<code>NSArray</code>和<code>NSDictionary</code>，为其添加方法可以实现Linq式的查询。</p>
+
+<p>例举几个常用的方法：</p>
+
+<h3 id="linqwhere">linq_where</h3>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="p">-</span> <span class="p">(</span><span class="bp">NSArray</span><span class="o">*</span><span class="p">)</span> <span class="nf">linq_where:</span><span class="p">(</span><span class="n">LINQCondition</span><span class="p">)</span><span class="nv">predicate</span><span class="p">;</span></code></pre></div>
+
+<p>Filters an array of objects based on a predicate that returns true for any object that should be included in the output array.</p>
+
+<p>The following example uses the where method to find people who are 25:</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="n">interface</span> <span class="nl">Person</span> <span class="p">:</span> <span class="bp">NSObject</span>
+
+<span class="k">@property</span> <span class="p">(</span><span class="k">retain</span><span class="p">,</span> <span class="k">nonatomic</span><span class="p">)</span> <span class="bp">NSString</span><span class="o">*</span> <span class="n">name</span><span class="p">;</span>
+<span class="k">@property</span> <span class="p">(</span><span class="k">retain</span><span class="p">,</span> <span class="k">nonatomic</span><span class="p">)</span> <span class="bp">NSNumber</span><span class="o">*</span> <span class="n">age</span><span class="p">;</span>
+
+<span class="k">@end</span>
+
+<span class="bp">NSArray</span><span class="o">*</span> <span class="n">peopleWhoAre25</span> <span class="o">=</span> <span class="p">[</span><span class="n">input</span> <span class="nl">linq_where</span><span class="p">:</span><span class="o">^</span><span class="kt">BOOL</span><span class="p">(</span><span class="kt">id</span> <span class="n">person</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">[[</span><span class="n">person</span> <span class="n">age</span><span class="p">]</span> <span class="nl">isEqualToNumber</span><span class="p">:</span><span class="mi">@25</span><span class="p">];</span>
+<span class="p">}];</span></code></pre></div>
+
+<h3 id="linqselect">linq_select</h3>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="p">-</span> <span class="p">(</span><span class="bp">NSArray</span><span class="o">*</span><span class="p">)</span> <span class="nf">linq_select:</span><span class="p">(</span><span class="n">LINQSelector</span><span class="p">)</span><span class="nv">transform</span><span class="p">;</span></code></pre></div>
+
+<p>Projects each element of a sequence into a new form. Each element in the array is transformed by a ‘selector’ into a new form, which is then used to populate the output array.</p>
+
+<p>The following example uses a selector that returns the name of each Person instance. The output will be an array of NSString instances.</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="bp">NSArray</span><span class="o">*</span> <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">input</span> <span class="nl">linq_select</span><span class="p">:</span><span class="o">^</span><span class="kt">id</span><span class="p">(</span><span class="kt">id</span> <span class="n">person</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">person</span> <span class="n">name</span><span class="p">];</span>
+<span class="p">}];</span></code></pre></div>
+
+<h3 id="linqsort">linq_sort</h3>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="p">-</span> <span class="p">(</span><span class="bp">NSArray</span><span class="o">*</span><span class="p">)</span> <span class="nf">linq_sort</span><span class="p">;</span>
+<span class="p">-</span> <span class="p">(</span><span class="bp">NSArray</span><span class="o">*</span><span class="p">)</span> <span class="nf">linq_sort:</span><span class="p">(</span><span class="n">LINQSelector</span><span class="p">)</span><span class="nv">keySelector</span><span class="p">;</span>
+<span class="p">-</span> <span class="p">(</span><span class="bp">NSArray</span><span class="o">*</span><span class="p">)</span> <span class="nf">linq_sortDescending</span><span class="p">;</span>
+<span class="p">-</span> <span class="p">(</span><span class="bp">NSArray</span><span class="o">*</span><span class="p">)</span> <span class="nf">linq_sortDescending:</span><span class="p">(</span><span class="n">LINQSelector</span><span class="p">)</span><span class="nv">keySelector</span><span class="p">;</span></code></pre></div>
+
+<p>Sorts the elements of an array, either via their ‘natural’ sort order, or via a <code>keySelector</code>.</p>
+
+<p>As an example of ‘natural’ sort, the following sorts a collection of <code>NSNumber</code> instances:</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="bp">NSArray</span><span class="o">*</span> <span class="n">input</span> <span class="o">=</span> <span class="l">@[</span><span class="mi">@21</span><span class="p">,</span> <span class="mi">@34</span><span class="p">,</span> <span class="mi">@25</span><span class="l">]</span><span class="p">;</span>
+<span class="bp">NSArray</span><span class="o">*</span> <span class="n">sortedInput</span> <span class="o">=</span> <span class="p">[</span><span class="n">input</span> <span class="n">linq_sort</span><span class="p">];</span> <span class="c1">// 21, 25, 34</span></code></pre></div>
+
+<p>In order to sort an array of Person instances, you can use the key selector:</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="bp">NSArray</span><span class="o">*</span> <span class="n">sortedByName</span> <span class="o">=</span> <span class="p">[</span><span class="n">input</span> <span class="nl">linq_sort</span><span class="p">:</span><span class="o">^</span><span class="kt">id</span><span class="p">(</span><span class="kt">id</span> <span class="n">person</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">person</span> <span class="n">name</span><span class="p">];</span>
+<span class="p">}];</span></code></pre></div>
+
+<p>The accompanying ‘descending’ methods simply reverse the sort order:</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="bp">NSArray</span><span class="o">*</span> <span class="n">input</span> <span class="o">=</span> <span class="l">@[</span><span class="mi">@21</span><span class="p">,</span> <span class="mi">@34</span><span class="p">,</span> <span class="mi">@25</span><span class="l">]</span><span class="p">;</span>
+<span class="bp">NSArray</span><span class="o">*</span> <span class="n">sortedInput</span> <span class="o">=</span> <span class="p">[</span><span class="n">input</span> <span class="n">linq_sort</span><span class="p">];</span> <span class="c1">// 21, 25, 34</span>
+<span class="bp">NSArray</span><span class="o">*</span> <span class="n">sortedInput</span> <span class="o">=</span> <span class="p">[</span><span class="n">input</span> <span class="n">linq_sortDescending</span><span class="p">];</span> <span class="c1">// 34, 25, 21</span></code></pre></div>
+
+<h3 id="linqoftype">linq_ofType</h3>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="p">-</span> <span class="p">(</span><span class="bp">NSArray</span><span class="o">*</span><span class="p">)</span> <span class="nf">linq_ofType:</span><span class="p">(</span><span class="kt">Class</span><span class="p">)</span><span class="nv">type</span><span class="p">;</span></code></pre></div>
+
+<p>Filters the elements of an an array based on a specified type.</p>
+
+<p>In the following example a mixed array of <code>NSString</code> and <code>NSNumber</code> instances is filtered to return just the <code>NSString</code> instances:</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="bp">NSArray</span><span class="o">*</span> <span class="n">mixed</span> <span class="o">=</span> <span class="l">@[</span><span class="s">@&quot;foo&quot;</span><span class="p">,</span> <span class="mi">@25</span><span class="p">,</span> <span class="s">@&quot;bar&quot;</span><span class="p">,</span> <span class="mi">@33</span><span class="l">]</span><span class="p">;</span>
+<span class="bp">NSArray</span><span class="o">*</span> <span class="n">strings</span> <span class="o">=</span> <span class="p">[</span><span class="n">mixed</span> <span class="nl">linq_ofType</span><span class="p">:[</span><span class="bp">NSString</span> <span class="k">class</span><span class="p">]];</span></code></pre></div>
+
+<h3 id="linqdistinct">linq_distinct</h3>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="p">-</span> <span class="p">(</span><span class="bp">NSArray</span><span class="o">*</span><span class="p">)</span> <span class="nf">linq_distinct</span><span class="p">;</span>
+<span class="p">-</span> <span class="p">(</span><span class="bp">NSArray</span><span class="o">*</span><span class="p">)</span> <span class="nf">linq_distinct:</span><span class="p">(</span><span class="n">LINQSelector</span><span class="p">)</span><span class="nv">keySelector</span><span class="p">;</span></code></pre></div>
+
+<p>Returns distinct elements from a sequence. This simply takes an array of items, returning an array of the distinct (i.e. unique) values in source order.</p>
+
+<p>The no-arg version of this method uses the default method of comparing the given objects. The version that takes a key-selector allows you to specify the value to use for equality for each item.</p>
+
+<p>Here’s an example that returns the distinct values from an array of strings:</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="bp">NSArray</span><span class="o">*</span> <span class="n">names</span> <span class="o">=</span> <span class="l">@[</span><span class="s">@&quot;bill&quot;</span><span class="p">,</span> <span class="s">@&quot;bob&quot;</span><span class="p">,</span> <span class="s">@&quot;bob&quot;</span><span class="p">,</span> <span class="s">@&quot;brian&quot;</span><span class="p">,</span> <span class="s">@&quot;bob&quot;</span><span class="l">]</span><span class="p">;</span>
+<span class="bp">NSArray</span><span class="o">*</span> <span class="n">distinctNames</span> <span class="o">=</span> <span class="p">[</span><span class="n">names</span> <span class="n">linq_distinct</span><span class="p">];</span>
+<span class="c1">// returns bill, bob and brian</span></code></pre></div>
+
+<p>Here’s a more complex example that uses the key selector to find people instances with distinct ages:</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="bp">NSArray</span><span class="o">*</span> <span class="n">peopleWithUniqueAges</span> <span class="o">=</span> <span class="p">[</span><span class="n">input</span> <span class="nl">linq_distinct</span><span class="p">:</span><span class="o">^</span><span class="kt">id</span><span class="p">(</span><span class="kt">id</span> <span class="n">person</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">person</span> <span class="n">age</span><span class="p">];</span>
+<span class="p">}];</span></code></pre></div>
+
+<h3 id="linqselectmany">linq_selectMany</h3>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="p">-</span> <span class="p">(</span><span class="bp">NSArray</span><span class="o">*</span><span class="p">)</span> <span class="nf">linq_selectMany:</span><span class="p">(</span><span class="n">LINQSelector</span><span class="p">)</span><span class="nv">transform</span><span class="p">;</span></code></pre></div>
+
+<p>Projects each element of a sequence to an <code>NSArray</code> and flattens the resulting sequences into one sequence.</p>
+
+<p>This is an interesting one! This is similar to the <code>select</code> method, however the selector must return an <code>NSArray</code>, with the select-many operation flattening the returned arrays into a single sequence.</p>
+
+<p>Here’s a quick example:</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="bp">NSArray</span><span class="o">*</span> <span class="n">data</span> <span class="o">=</span> <span class="l">@[</span><span class="s">@&quot;foo, bar&quot;</span><span class="p">,</span> <span class="s">@&quot;fubar&quot;</span><span class="l">]</span><span class="p">;</span>
+
+<span class="bp">NSArray</span><span class="o">*</span> <span class="n">components</span> <span class="o">=</span> <span class="p">[</span><span class="n">data</span> <span class="nl">linq_selectMany</span><span class="p">:</span><span class="o">^</span><span class="kt">id</span><span class="p">(</span><span class="kt">id</span> <span class="n">string</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">string</span> <span class="nl">componentsSeparatedByString</span><span class="p">:</span><span class="s">@&quot;, &quot;</span><span class="p">];</span>  <span class="c1">// foo, bar, fubar</span>
+<span class="p">}];</span></code></pre></div>
+
+<h3 id="linqaggregate">linq_aggregate</h3>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="p">-</span> <span class="p">(</span><span class="kt">id</span><span class="p">)</span> <span class="nf">linq_aggregate:</span><span class="p">(</span><span class="n">LINQAccumulator</span><span class="p">)</span><span class="nv">accumulator</span><span class="p">;</span></code></pre></div>
+
+<p>Applies an accumulator function over a sequence. This method transforms an array into a single value by applying an accumulator function to each successive element.</p>
+
+<p>Here’s an example that creates a comma separated list from an array of strings:</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="bp">NSArray</span><span class="o">*</span> <span class="n">names</span> <span class="o">=</span> <span class="l">@[</span><span class="s">@&quot;bill&quot;</span><span class="p">,</span> <span class="s">@&quot;bob&quot;</span><span class="p">,</span> <span class="s">@&quot;brian&quot;</span><span class="l">]</span><span class="p">;</span>
+
+<span class="kt">id</span> <span class="n">aggregate</span> <span class="o">=</span> <span class="p">[</span><span class="n">names</span> <span class="nl">linq_aggregate</span><span class="p">:</span><span class="o">^</span><span class="kt">id</span><span class="p">(</span><span class="kt">id</span> <span class="n">item</span><span class="p">,</span> <span class="kt">id</span> <span class="n">aggregate</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">[</span><span class="bp">NSString</span> <span class="nl">stringWithFormat</span><span class="p">:</span><span class="s">@&quot;%@, %@&quot;</span><span class="p">,</span> <span class="n">aggregate</span><span class="p">,</span> <span class="n">item</span><span class="p">];</span>
+<span class="p">}];</span>
+<span class="c1">// returns @&quot;bill, bob, brian&quot;</span></code></pre></div>
+
+<p>Here’s another example that returns the largest value from an array of numbers:</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="bp">NSArray</span><span class="o">*</span> <span class="n">numbers</span> <span class="o">=</span> <span class="l">@[</span><span class="mi">@22</span><span class="p">,</span> <span class="mi">@45</span><span class="p">,</span> <span class="mi">@33</span><span class="l">]</span><span class="p">;</span>
+
+<span class="kt">id</span> <span class="n">biggestNumber</span> <span class="o">=</span> <span class="p">[</span><span class="n">numbers</span> <span class="nl">linq_aggregate</span><span class="p">:</span><span class="o">^</span><span class="kt">id</span><span class="p">(</span><span class="kt">id</span> <span class="n">item</span><span class="p">,</span> <span class="kt">id</span> <span class="n">aggregate</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">item</span> <span class="nl">compare</span><span class="p">:</span><span class="n">aggregate</span><span class="p">]</span> <span class="o">==</span> <span class="n">NSOrderedDescending</span> <span class="o">?</span> <span class="nl">item</span> <span class="p">:</span> <span class="n">aggregate</span><span class="p">;</span>
+<span class="p">}];</span>
+<span class="c1">// returns 45</span></code></pre></div>
+
+<h2 id="reference">Reference</h2>
+<p><a href="https://github.com/ColinEberhardt/LinqToObjectiveC">LinqToObjectiveC</a></p>
+
+<p><a href="http://www.scottlogic.com/blog/2013/02/15/linq-to-objective-c.html">SL Blog</a></p>
+
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>Copyright © 2015 - Jowyer Wang</li> 
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        
+      </div>
+
+      <div class="footer-col  footer-col-3">
+        <p class="text">Simplicity is the ultimate sophistication.
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+    <script>
+  var anchorForId = function (id) {
+    var anchor = document.createElement("a");
+    anchor.className = "header-link";
+    anchor.href      = "#" + id;
+    anchor.innerHTML = "<i class=\"fa fa-link\"></i>";
+    return anchor;
+  };
+
+  var linkifyAnchors = function (level, containingElement) {
+    var headers = containingElement.getElementsByTagName("h" + level);
+    for (var h = 0; h < headers.length; h++) {
+      var header = headers[h];
+
+      if (typeof header.id !== "undefined" && header.id !== "") {
+        header.appendChild(anchorForId(header.id));
+      }
+    }
+  };
+
+  document.onreadystatechange = function () {
+    if (this.readyState === "complete") {
+      var contentBlock = document.getElementsByClassName("post")[0];  //  || document.getElementsByClassName("page")[0] 
+      if (!contentBlock) {
+        return;
+      }
+      for (var level = 1; level <= 6; level++) {
+        linkifyAnchors(level, contentBlock);
+      }
+    }
+  };
+</script>
+
+
+  </body>
+
+</html>

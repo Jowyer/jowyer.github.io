@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>MVVM</title>
+    <meta name="description" content="Simplicity is the ultimate sophistication.
+">
+
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="canonical" href="/ios/2014/12/14/MVVM.html">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/">Jowyer's Blog</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+          
+          <a class="page-link" href="/contact/">Contact</a>
+          
+        
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">MVVM</h1>
+    <p class="post-meta">Dec 14, 2014</p>
+  </header>
+
+  <article class="post-content">
+    <p>之前一直使用的设计模式都是<strong>MVC</strong>，现在是时候向更高阶的<strong>MVVM</strong>迈进了。有了<a href="http://jowyer.github.io/personal/2014/12/05/ReactiveCocoa.html">ReactiveCocoa</a>，iOS才能自如的使用<strong>MVVM</strong>。</p>
+
+<h2 id="introduction">Introduction</h2>
+<blockquote>
+  <p>The Model-View-ViewModel, or MVVM pattern as it’s commonly known, is a UI design pattern. It’s a member of a larger family of patterns collectively known as MV*, these include Model View Controller (MVC), Model View Presenter (MVP) and a number of others.</p>
+
+  <p>Each of these patterns is concerned with separating UI logic from business logic in order to make applications easier to develop and test.</p>
+</blockquote>
+
+<p><img src="http://www.objc.io/images/issue-13/mvvm1.png" alt="" /></p>
+
+<p>This is a typical MVC setup. <strong>Models</strong> represent data, <strong>views</strong> represent user interfaces, and <strong>view controllers</strong> mediate the interactions between the two of them. </p>
+
+<p>Yet <strong>views</strong> and <strong>view controllers</strong> almost always go hand-in-hand together, paired. This more accurately describes the MVC code that we’re writing:</p>
+
+<p><img src="http://www.objc.io/images/issue-13/intermediate.png" alt="" /></p>
+
+<p>In typical MVC applications, a lot of logic gets placed in the <strong>view controller</strong>. Some of it belongs in the <strong>view controller</strong>, sure, but <strong><em>a lot</em></strong> of it is what’s called ‘presentation logic’, in MVVM terms – things like transforming values from the model into something the view can present, like taking an <code>NSDate</code> and turning it into a formatted <code>NSString</code>.</p>
+
+<p><strong>View Model</strong> is where we can place all of that presentation logic.</p>
+
+<p><img src="http://www.objc.io/images/issue-13/mvvm.png" alt="" /></p>
+
+<p>This diagram accurately describes what MVVM is: an augmented version of MVC where we formally connect the <strong>view</strong> and <strong>view controller</strong>, and move presentation logic out of the controller and into a new object, the <strong>view model</strong>.</p>
+
+<p>To mention a few roles of <strong>view controller</strong>: it listens for orientation changes and adjusts views as necessary, handles events like button taps or view scrolls, acts on gesture recognizer actions, worries about state preservation, controls status and navigation bars and can manage memory. Burdening it with model processing should be avoided when possible. This is a issue we’ll try to solve with MVVM pattern.</p>
+
+<p>There are three important points about MVVM:</p>
+
+<ul>
+  <li>MVVM is compatible with your existing MVC architecture.</li>
+  <li>MVVM makes your apps more testable.</li>
+  <li>MVVM works best with a <strong>binding mechanism</strong>.</li>
+</ul>
+
+<h2 id="mvvm-and-mvc">MVVM and MVC</h2>
+
+<p>The relationships between the three components of the MVVM pattern are simpler than the MVC equivalents, following these strict rules:</p>
+
+<ol>
+  <li>The <strong>View</strong> has a reference to the <strong>ViewModel</strong>, but not vice-versa.</li>
+  <li>The <strong>ViewModel</strong> has a reference to the <strong>Model</strong>, but not vice-versa.</li>
+</ol>
+
+<p>If you break either of these rules, you’re doing MVVM wrong!</p>
+
+<p>A couple of immediate advantages of this pattern are as follows:</p>
+
+<ol>
+  <li>Lightweight Views – All your UI logic resides within the <strong>ViewModel</strong>, resulting in a very lightweight <strong>View</strong>.</li>
+  <li>Testing – you should be able to run your entire application without the <strong>View</strong>, greatly enhancing its testability.</li>
+</ol>
+
+<h2 id="mvvm-and-data-binding">MVVM and Data Binding</h2>
+
+<p>The MVVM pattern relies on data-binding, a framework level feature that automatically connects object properties to UI controls.</p>
+
+<p>The <strong>view model</strong> can update its properties when the <strong>model</strong> backing those properties changes. Furthermore, once the <strong>models</strong> on the <strong>view model</strong> change, the <strong>views’</strong> properties need to be updated as well. A change from the <strong>model</strong> should cascade down through the <strong>view model</strong> into the <strong>view</strong>.</p>
+
+<p>Unfortunately, iOS lacks a data-binding framework, but this is where <em>ReactiveCocoa</em> acts as the ‘glue’ that connects the <strong>ViewModel</strong> together.</p>
+
+<p><img src="http://cdn1.raywenderlich.com/wp-content/uploads/2014/06/MVVMReactiveCocoa.png" alt="" /></p>
+
+<p>ReactiveCocoa is vital for binding the <strong>View</strong> to the <strong>ViewModel</strong>, ensuring that the two remain synchronized.</p>
+
+<h2 id="build-structure">Build Structure</h2>
+
+<p>The <strong>Model</strong> layer exposes a ‘service’ that the <strong>ViewModel</strong> consumes. A <strong>protocol</strong> defines this service interface, providing <em>loose coupling</em>.<br />
+You could use this approach to provide a dummy service implementation for unit tests. The application now has the correct Model-View-ViewModel structure. To briefly recap:</p>
+
+<ol>
+  <li>The <strong>Model</strong> layer exposes services and is responsible for providing business logic for the application.</li>
+  <li>The <strong>ViewModel</strong> layer represents the view-state of the application. It also responds to user interactions and ‘events’ that come from the <strong>Model</strong> layer, each of which are reflected by changes in view-state.</li>
+  <li>The <strong>View</strong> layer is very thin and simply provides a visualisation of the <strong>ViewModel</strong> state and forwards user interactions.</li>
+</ol>
+
+<p>Conceptually, the <strong>ViewModel</strong> layer drives the application; logic within this layer determines what displays in the <strong>View</strong>, as well as how and when navigation should occur.</p>
+
+<h2 id="reference">Reference</h2>
+<p><a href="http://www.raywenderlich.com/74106/mvvm-tutorial-with-reactivecocoa-part-1">RayWenderlich</a></p>
+
+<p><a href="http://www.objc.io/issue-13/mvvm.html">objc.io</a></p>
+
+<p><a href="http://rasic.info/from-mvc-to-mvvm-in-swift/">Srdan Rasic</a></p>
+
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>Copyright © 2015 - Jowyer Wang</li> 
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        
+      </div>
+
+      <div class="footer-col  footer-col-3">
+        <p class="text">Simplicity is the ultimate sophistication.
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+    <script>
+  var anchorForId = function (id) {
+    var anchor = document.createElement("a");
+    anchor.className = "header-link";
+    anchor.href      = "#" + id;
+    anchor.innerHTML = "<i class=\"fa fa-link\"></i>";
+    return anchor;
+  };
+
+  var linkifyAnchors = function (level, containingElement) {
+    var headers = containingElement.getElementsByTagName("h" + level);
+    for (var h = 0; h < headers.length; h++) {
+      var header = headers[h];
+
+      if (typeof header.id !== "undefined" && header.id !== "") {
+        header.appendChild(anchorForId(header.id));
+      }
+    }
+  };
+
+  document.onreadystatechange = function () {
+    if (this.readyState === "complete") {
+      var contentBlock = document.getElementsByClassName("post")[0];  //  || document.getElementsByClassName("page")[0] 
+      if (!contentBlock) {
+        return;
+      }
+      for (var level = 1; level <= 6; level++) {
+        linkifyAnchors(level, contentBlock);
+      }
+    }
+  };
+</script>
+
+
+  </body>
+
+</html>

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Generate QR Code</title>
+    <meta name="description" content="Simplicity is the ultimate sophistication.
+">
+
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="canonical" href="/ios/2015/01/05/Generate%20QR%20Code.html">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/">Jowyer's Blog</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+          
+          <a class="page-link" href="/contact/">Contact</a>
+          
+        
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Generate QR Code</h1>
+    <p class="post-meta">Jan 5, 2015</p>
+  </header>
+
+  <article class="post-content">
+    <p>在前面的<a href="http://jowyer.github.io/ios/2014/12/25/Scan%20QR%20Code.html">博客</a>中介绍了如何实现二维码扫描，今天继续说说怎么实现二维码的生成。</p>
+
+<p>同样是在iOS 7以后，Apple给出了官方的解决方案 — <strong>CoreImage</strong>中的<a href="https://developer.apple.com/library/ios/documentation/GraphicsImaging/Reference/CoreImageFilterReference/index.html#//apple_ref/doc/filter/ci/CIQRCodeGenerator">CIQRCodeGenerator</a>。</p>
+
+<h2 id="ciqrcodegenerator">CIQRCodeGenerator</h2>
+<p>Generates a Quick Response code (two-dimensional barcode) from input data.</p>
+
+<h3 id="parameters">Parameters</h3>
+<ul>
+  <li>
+    <p><strong><em>inputMessage</em></strong>:</p>
+
+    <p>The data to be encoded as a QR code. An <code>NSData</code> object whose display name is <em>Message</em>.</p>
+  </li>
+  <li>
+    <p><strong><em>inputCorrectionLevel</em></strong></p>
+
+    <p>A single letter specifying the error correction format. An <code>NSString</code> object whose display name is <em>CorrectionLevel</em>. Default value: <strong>M</strong></p>
+  </li>
+</ul>
+
+<h2 id="usage">Usage</h2>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="p">@</span><span class="n">import</span> <span class="n">CoreImage</span><span class="p">;</span>
+
+<span class="p">-</span> <span class="p">(</span><span class="bp">UIImage</span> <span class="o">*</span><span class="p">)</span><span class="nf">qrImageForString:</span><span class="p">(</span><span class="bp">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nv">qrString</span>
+<span class="p">{</span>
+    <span class="c1">// Need to convert the string to a UTF-8 encoded NSData object</span>
+    <span class="bp">NSData</span> <span class="o">*</span><span class="n">stringData</span> <span class="o">=</span> <span class="p">[</span><span class="n">qrString</span> <span class="nl">dataUsingEncoding</span><span class="p">:</span><span class="n">NSUTF8StringEncoding</span><span class="p">];</span>
+    
+    <span class="c1">// Create the filter</span>
+    <span class="bp">CIFilter</span> <span class="o">*</span><span class="n">qrFilter</span> <span class="o">=</span> <span class="p">[</span><span class="bp">CIFilter</span> <span class="nl">filterWithName</span><span class="p">:</span><span class="s">@&quot;CIQRCodeGenerator&quot;</span><span class="p">];</span>
+    <span class="c1">// Set the message content and error-correction level</span>
+    <span class="p">[</span><span class="n">qrFilter</span> <span class="nl">setValue</span><span class="p">:</span><span class="n">stringData</span> <span class="nl">forKey</span><span class="p">:</span><span class="s">@&quot;inputMessage&quot;</span><span class="p">];</span>
+    <span class="p">[</span><span class="n">qrFilter</span> <span class="nl">setValue</span><span class="p">:</span><span class="s">@&quot;H&quot;</span> <span class="nl">forKey</span><span class="p">:</span><span class="s">@&quot;inputCorrectionLevel&quot;</span><span class="p">];</span>
+    
+    <span class="c1">// Send the image back</span>
+    <span class="bp">CIImage</span> <span class="o">*</span><span class="n">outputImage</span> <span class="o">=</span> <span class="n">qrFilter</span><span class="p">.</span><span class="n">outputImage</span><span class="p">;</span>
+    <span class="bp">UIImage</span> <span class="o">*</span><span class="n">image</span> <span class="o">=</span> <span class="p">[</span><span class="bp">UIImage</span> <span class="nl">imageWithCIImage</span><span class="p">:</span><span class="n">outputImage</span>
+                                         <span class="nl">scale</span><span class="p">:</span><span class="mf">1.</span>
+                                   <span class="nl">orientation</span><span class="p">:</span><span class="n">UIImageOrientationUp</span><span class="p">];</span>
+    <span class="k">return</span> <span class="n">image</span><span class="p">;</span>
+<span class="p">}</span></code></pre></div>
+
+<p>如果直接使用这个<code>UIImage</code>，会发现得到的二维码很模糊，这是因为通过filter的<code>outputImage</code>属性获得的<code>CIImage</code>，只满足了1pt resolution for the smallest squares。</p>
+
+<p>我们可以通过<code>kCGInterpolationNone</code>的方式进行拉伸，来获得更清晰的图片。</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="p">-</span> <span class="p">(</span><span class="bp">UIImage</span> <span class="o">*</span><span class="p">)</span><span class="nf">resizeImage:</span><span class="p">(</span><span class="bp">UIImage</span> <span class="o">*</span><span class="p">)</span><span class="nv">image</span>
+             <span class="nf">withQuality:</span><span class="p">(</span><span class="bp">CGInterpolationQuality</span><span class="p">)</span><span class="nv">quality</span>
+                    <span class="nf">rate:</span><span class="p">(</span><span class="n">CGFloat</span><span class="p">)</span><span class="nv">rate</span>
+<span class="p">{</span>
+    <span class="bp">UIImage</span> <span class="o">*</span><span class="n">resized</span> <span class="o">=</span> <span class="nb">nil</span><span class="p">;</span>
+    <span class="n">CGFloat</span> <span class="n">width</span> <span class="o">=</span> <span class="n">image</span><span class="p">.</span><span class="n">size</span><span class="p">.</span><span class="n">width</span> <span class="o">*</span> <span class="n">rate</span><span class="p">;</span>
+    <span class="n">CGFloat</span> <span class="n">height</span> <span class="o">=</span> <span class="n">image</span><span class="p">.</span><span class="n">size</span><span class="p">.</span><span class="n">height</span> <span class="o">*</span> <span class="n">rate</span><span class="p">;</span>
+    
+    <span class="n">UIGraphicsBeginImageContext</span><span class="p">(</span><span class="n">CGSizeMake</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">));</span>
+    <span class="n">CGContextRef</span> <span class="n">context</span> <span class="o">=</span> <span class="n">UIGraphicsGetCurrentContext</span><span class="p">();</span>
+    <span class="n">CGContextSetInterpolationQuality</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">quality</span><span class="p">);</span>
+    <span class="p">[</span><span class="n">image</span> <span class="nl">drawInRect</span><span class="p">:</span><span class="n">CGRectMake</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">)];</span>
+    <span class="n">resized</span> <span class="o">=</span> <span class="n">UIGraphicsGetImageFromCurrentImageContext</span><span class="p">();</span>
+    <span class="n">UIGraphicsEndImageContext</span><span class="p">();</span>
+    
+    <span class="k">return</span> <span class="n">resized</span><span class="p">;</span>
+<span class="p">}</span></code></pre></div>
+
+<p>完整的流程：</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="bp">NSString</span> <span class="o">*</span><span class="n">string</span> <span class="o">=</span> <span class="s">@&quot;http://jowyer.github.io/&quot;</span><span class="p">;</span>
+
+<span class="bp">UIImage</span> <span class="o">*</span><span class="n">qrImage</span> <span class="o">=</span> <span class="p">[</span><span class="nb">self</span> <span class="nl">qrImageForString</span><span class="p">:</span><span class="n">string</span><span class="p">];</span>
+
+<span class="bp">UIImage</span> <span class="o">*</span><span class="n">resizedImage</span> <span class="o">=</span> <span class="p">[</span><span class="nb">self</span> <span class="nl">resizeImage</span><span class="p">:</span><span class="n">qrImage</span>
+                              <span class="nl">withQuality</span><span class="p">:</span><span class="n">kCGInterpolationNone</span>
+                                     <span class="nl">rate</span><span class="p">:</span><span class="mf">5.0</span><span class="p">];</span>
+
+<span class="nb">self</span><span class="p">.</span><span class="n">myImageView</span><span class="p">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">resizedImage</span><span class="p">;</span></code></pre></div>
+
+<h2 id="reference">Reference</h2>
+<p><a href="http://www.shinobicontrols.com/blog/posts/2013/10/10/ios7-day-by-day-day-15-coreimage-filters">ShinobiControls</a></p>
+
+<p><a href="https://github.com/shu223/iOS7-Sampler">shu223</a></p>
+
+<p><a href="http://blog.yourtion.com/custom-cifilter-qrcode-generator.html">郭宇翔</a></p>
+
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>Copyright © 2015 - Jowyer Wang</li> 
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        
+      </div>
+
+      <div class="footer-col  footer-col-3">
+        <p class="text">Simplicity is the ultimate sophistication.
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+    <script>
+  var anchorForId = function (id) {
+    var anchor = document.createElement("a");
+    anchor.className = "header-link";
+    anchor.href      = "#" + id;
+    anchor.innerHTML = "<i class=\"fa fa-link\"></i>";
+    return anchor;
+  };
+
+  var linkifyAnchors = function (level, containingElement) {
+    var headers = containingElement.getElementsByTagName("h" + level);
+    for (var h = 0; h < headers.length; h++) {
+      var header = headers[h];
+
+      if (typeof header.id !== "undefined" && header.id !== "") {
+        header.appendChild(anchorForId(header.id));
+      }
+    }
+  };
+
+  document.onreadystatechange = function () {
+    if (this.readyState === "complete") {
+      var contentBlock = document.getElementsByClassName("post")[0];  //  || document.getElementsByClassName("page")[0] 
+      if (!contentBlock) {
+        return;
+      }
+      for (var level = 1; level <= 6; level++) {
+        linkifyAnchors(level, contentBlock);
+      }
+    }
+  };
+</script>
+
+
+  </body>
+
+</html>

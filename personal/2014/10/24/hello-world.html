@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>通过GitHub Pages和jekyll在GitHub上建立免费博客</title>
+    <meta name="description" content="Simplicity is the ultimate sophistication.
+">
+
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="canonical" href="/personal/2014/10/24/hello-world.html">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/">Jowyer's Blog</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+          
+          <a class="page-link" href="/contact/">Contact</a>
+          
+        
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">通过GitHub Pages和jekyll在GitHub上建立免费博客</h1>
+    <p class="post-meta">Oct 24, 2014</p>
+  </header>
+
+  <article class="post-content">
+    <p>终于设置好可以发博客了！</p>
+
+<p>第一篇就来说说怎么通过<a href="https://pages.github.com/">GitHub Pages</a>和<a href="http://jekyllrb.com/">jekyll</a>(<a href="http://jekyllcn.com/">jekyll的中文网页</a>)，在GitHub上发文章吧。</p>
+
+<blockquote>
+  <p>GitHub Pages are public webpages freely hosted and easily published through our site.</p>
+</blockquote>
+
+<blockquote>
+  <p>Jekyll is a simple, blog-aware, static site generator perfect for personal, project, or organization sites. </p>
+</blockquote>
+
+<h2 id="github">搭建GitHub博客项目</h2>
+
+<p>首先根据<a href="https://pages.github.com/">GitHub Pages</a>的指引，建立好项目：</p>
+
+<blockquote>
+  <p>https://github.com/<strong>username</strong>/<strong>username</strong>.github.io</p>
+</blockquote>
+
+<p>其中 <code>username</code> 必须是自己在GitHub上的用户名。再把项目clone到本地目录：</p>
+
+<blockquote>
+  <p>/Users/jowyer/Code/jowyer.github.io/</p>
+</blockquote>
+
+<h2 id="jekyll">重用jekyll默认工程</h2>
+<p>为了快速开始，可以使用jekyll默认的模板来进行修改。</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span><span class="nb">cd</span> /Users/jowyer/Code/
+<span class="nv">$ </span>jekyll new blog
+<span class="nv">$ </span><span class="nb">cd </span>blog
+<span class="nv">$ </span>cp -R ./. ../jowyer.github.io/</code></pre></div>
+
+<p>将jekyll模板工程中的所有文件，包括<code>.gitignore</code>都拷贝至GitHub博客项目的本地目录中去。</p>
+
+<p>最后将本地的博客项目 <strong>Commit &amp; Sync</strong> 到GitHub去就搞定了！</p>
+
+<p>快去你的 <em>http://<strong>username</strong>.github.io/</em> 看看吧！</p>
+
+<hr />
+
+<h2 id="section">了解目录结构</h2>
+<p>至此，构成博客网页的所有内容都组织在你的GitHub工程中了，网页内容，结构，样式都可以随意调整。</p>
+
+<p>进一步关于jekyll的文件结构及其用法请移步 <a href="http://jekyllrb.com/docs/structure/">jekyll官方教程</a> 。</p>
+
+<h2 id="jekyll-1">jekyll调试</h2>
+<p>jekyll提供了很方便的本地调试方法，只需要在工程目录下输入：</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>jekyll serve</code></pre></div>
+
+<p>就会在本地启动一个开发服务器，这时在浏览器中打开<code>http://localhost:4000/</code>就可以进行本地调试了。关闭本地服务器：Ctrl+c。</p>
+
+<h2 id="jekyll-2">jekyll安装</h2>
+<p>如果你和我之前一样，电脑上没有安装jekyll，那我们还有一段路要走。</p>
+
+<blockquote>
+  <p>Requirements: </p>
+
+  <ul>
+    <li>Ruby (including development headers)</li>
+    <li>RubyGems</li>
+    <li>Linux, Unix, or Mac OS X</li>
+    <li>NodeJS, or another JavaScript runtime (for CoffeeScript support).</li>
+  </ul>
+</blockquote>
+
+<p>我在mac上的<strong>安装顺序</strong>是：</p>
+
+<ol>
+  <li>安装<a href="http://brew.sh/">Homebrew</a>
+    <ul>
+      <li>
+        <div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>ruby -e <span class="s2">&quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)&quot;</span></code></pre></div>
+      </li>
+    </ul>
+  </li>
+  <li>安装<a href="https://rvm.io/">RVM</a>
+    <ul>
+      <li>
+        <div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span><span class="se">\c</span>url -sSL https://get.rvm.io <span class="p">|</span> bash -s stable</code></pre></div>
+      </li>
+    </ul>
+  </li>
+  <li>用RVM安装Ruby
+    <ul>
+      <li>
+        <div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>rvm install ruby-2.1.3</code></pre></div>
+      </li>
+    </ul>
+  </li>
+  <li>用RubyGems安装jekyll
+    <ul>
+      <li>
+        <div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>gem install jekyll</code></pre></div>
+      </li>
+    </ul>
+  </li>
+</ol>
+
+<p>当然，你也可以遵循<a href="http://jekyllrb.com/docs/installation/">jekyll官方安装指南</a>。</p>
+
+<h2 id="reference">Reference</h2>
+
+<p><a href="http://kramdown.gettalong.org/syntax.html">kramdown Syntax</a></p>
+
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>Copyright © 2015 - Jowyer Wang</li> 
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        
+      </div>
+
+      <div class="footer-col  footer-col-3">
+        <p class="text">Simplicity is the ultimate sophistication.
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+    <script>
+  var anchorForId = function (id) {
+    var anchor = document.createElement("a");
+    anchor.className = "header-link";
+    anchor.href      = "#" + id;
+    anchor.innerHTML = "<i class=\"fa fa-link\"></i>";
+    return anchor;
+  };
+
+  var linkifyAnchors = function (level, containingElement) {
+    var headers = containingElement.getElementsByTagName("h" + level);
+    for (var h = 0; h < headers.length; h++) {
+      var header = headers[h];
+
+      if (typeof header.id !== "undefined" && header.id !== "") {
+        header.appendChild(anchorForId(header.id));
+      }
+    }
+  };
+
+  document.onreadystatechange = function () {
+    if (this.readyState === "complete") {
+      var contentBlock = document.getElementsByClassName("post")[0];  //  || document.getElementsByClassName("page")[0] 
+      if (!contentBlock) {
+        return;
+      }
+      for (var level = 1; level <= 6; level++) {
+        linkifyAnchors(level, contentBlock);
+      }
+    }
+  };
+</script>
+
+
+  </body>
+
+</html>

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>appledoc</title>
+    <meta name="description" content="Simplicity is the ultimate sophistication.
+">
+
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="canonical" href="/ios/2015/01/23/appledoc.html">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/">Jowyer's Blog</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+          
+          <a class="page-link" href="/contact/">Contact</a>
+          
+        
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">appledoc</h1>
+    <p class="post-meta">Jan 23, 2015</p>
+  </header>
+
+  <article class="post-content">
+    <p><a href="https://github.com/tomaz/appledoc">appledoc</a>是一个基于Objective-C的文档生成器，用它可以很方便的写出类似Apple官方风格的文档。</p>
+
+<blockquote>
+  <p>appledoc is command line tool that helps Objective-C developers generate Apple-like source code documentation from specially formatted source code comments. </p>
+</blockquote>
+
+<h2 id="installation">Installation</h2>
+<p>从GitHub上把工程clone下来，再通过shell命令安装。</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">git clone git://github.com/tomaz/appledoc.git
+<span class="nb">cd </span>appledoc
+sudo sh install-appledoc.sh</code></pre></div>
+
+<h2 id="documenting">Documenting</h2>
+
+<p>Objective-C documentation is designated by a /** */ comment block (note the extra initial star), which <strong>precedes</strong> any <code>@interface</code> or <code>@protocol</code>, as well as any <code>method</code> or <code>@property</code> declarations.</p>
+
+<p>以下面这段代码来说明：</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="cm">/** Returns the absolute path of the Homebrew executable.</span>
+<span class="cm"> *</span>
+<span class="cm"> * @return The Homebrew executable path.</span>
+<span class="cm"> */</span>
+<span class="p">-</span> <span class="p">(</span><span class="bp">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nf">brewPath</span><span class="p">;</span>
+
+<span class="cm">/** Sets the absolute path of the Homebrew executable.</span>
+<span class="cm"> *</span>
+<span class="cm"> * @param path The absolute path of the Homebrew executable. If `nil` the</span>
+<span class="cm"> * default path `/usr/local/bin/brew` will be used.</span>
+<span class="cm"> */</span>
+<span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">setBrewPath:</span><span class="p">(</span><span class="bp">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nv">path</span><span class="p">;</span>
+
+<span class="cm">/**-----------------------------------------------------------------------------</span>
+<span class="cm"> * @name Performing an Operation</span>
+<span class="cm"> * -----------------------------------------------------------------------------</span>
+<span class="cm"> */</span>
+
+<span class="cm">/** Performs an operation.</span>
+<span class="cm"> *</span>
+<span class="cm"> * Operations are placed in a queue for execution and will always execute on</span>
+<span class="cm"> * separate threads. Use setConcurrentOperations: to control how queued</span>
+<span class="cm"> * operations are executed (i.e. concurrently, or serially).</span>
+<span class="cm"> *</span>
+<span class="cm"> * @param operation The operation to perform.</span>
+<span class="cm"> * @param delegate The delegate object for the operation. The delegate will</span>
+<span class="cm"> * receive delegate messages during execution of the operation when output is</span>
+<span class="cm"> * generated and upon completion or failure of the operation.</span>
+<span class="cm"> */</span>
+<span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">performOperation:</span><span class="p">(</span><span class="n">MRBrewOperation</span> <span class="o">*</span><span class="p">)</span><span class="nv">operation</span> <span class="nf">delegate:</span><span class="p">(</span><span class="kt">id</span><span class="o">&lt;</span><span class="n">MRBrewDelegate</span><span class="o">&gt;</span><span class="p">)</span><span class="nv">delegate</span><span class="p">;</span></code></pre></div>
+
+<h3 id="description">description</h3>
+
+<p>在**后面写<code>description</code>，更详细的<code>discussion</code>另起一行后再写。</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="cm">/** description</span>
+<span class="cm"> *</span>
+<span class="cm"> * discussion</span>
+<span class="cm"> *</span>
+<span class="cm"> */</span></code></pre></div>
+
+<h3 id="name">@name</h3>
+
+<p>相当于<code>#pragma mark</code>的功能，给代码分段。</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="cm">/**-----------------------------------------------------------------------------</span>
+<span class="cm"> * @name Part 1</span>
+<span class="cm"> * -----------------------------------------------------------------------------</span>
+<span class="cm"> */</span></code></pre></div>
+
+<h3 id="param">@param</h3>
+
+<p><strong>@param [param] [Description]</strong>: 对参数的描述。</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="o">*</span> <span class="p">@</span><span class="n">param</span> <span class="n">url</span> <span class="n">The</span> <span class="n">URL</span> <span class="n">to</span> <span class="n">access</span><span class="p">.</span></code></pre></div>
+
+<h3 id="return">@return</h3>
+<p><strong>@return [Description]</strong>: 对返回值的描述。</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="o">*</span> <span class="p">@</span><span class="k">return</span> <span class="n">The</span> <span class="k">return</span> <span class="n">value</span> <span class="n">of</span> <span class="n">the</span> <span class="n">method</span><span class="p">.</span></code></pre></div>
+
+<h3 id="see">@see</h3>
+<p><strong>@see [selector]</strong>: 提供<strong>see also</strong>的指引，引出相关的内容。</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="o">*</span> <span class="p">@</span><span class="n">see</span> <span class="o">+</span><span class="n">manager</span></code></pre></div>
+
+<h3 id="warning">@warning</h3>
+<p><strong>@warning [description]</strong>: 提供警示内容。</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="o">*</span> <span class="p">@</span><span class="n">warning</span> <span class="n">Call</span> <span class="k">out</span> <span class="n">exceptional</span> <span class="n">or</span> <span class="n">potentially</span> <span class="n">dangerous</span> <span class="n">behavior</span></code></pre></div>
+
+<p>这些是一些常用的标识，更多的Javadoc-style @ labels看<a href="https://github.com/tomaz/appledoc/wiki/appledoc-docs-comments">这里</a>。</p>
+
+<h2 id="vvdocumenter-xcode">VVDocumenter-Xcode</h2>
+
+<p><a href="http://www.onevcat.com/">onevcat</a>开源的<a href="https://github.com/onevcat/VVDocumenter-Xcode">VVDocumenter-Xcode</a>插件，安装之后重启Xcode，再输入 <strong>///</strong> 就能自动生成一个文档注释的模板，很方便。</p>
+
+<h2 id="usage">Usage</h2>
+<p>按照规范写好后，按住<strong>option</strong>键点击方法名，就能看到类似Apple文档的说明了。</p>
+
+<p>如果想生成<strong>.docset</strong>文件，便于导入<a href="http://kapeli.com/dash">Dash</a>之类的软件，只需要输入如下命令即可：</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">appledoc -p testappledoc -c Jo2Studio --company-id com.jo2studio -o ./doc .</code></pre></div>
+
+<p>会将当前文件夹下的所有源文件进行扫描，生成文档，并在当前目录下的doc/文件夹下，新建一个文本文件，记录生成情况。<br />
+生成的文档文件默认会存放到：</p>
+
+<p><strong>~/Library/Developer/Shared/Documentation/DocSets</strong></p>
+
+<p>更多可用的参数可以用<code>appledoc --help</code>查看。或者查看官方的<a href="https://github.com/tomaz/appledoc/wiki/appledoc-docs-examples-basic">wiki</a>。</p>
+
+<p>p.s. 生成<strong>.docset</strong>文件后，在Xcode使用时，显示的内容反而不如之前多了。建议生成文档文件后将其移出默认系统文件夹。</p>
+
+<h2 id="reference">Reference</h2>
+<p><a href="http://nshipster.com/documentation/">NSHipster</a></p>
+
+<p><a href="http://blog.devtang.com/blog/2012/02/01/use-appledoc-to-generate-xcode-doc/">唐巧</a></p>
+
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>Copyright © 2015 - Jowyer Wang</li> 
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        
+      </div>
+
+      <div class="footer-col  footer-col-3">
+        <p class="text">Simplicity is the ultimate sophistication.
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+    <script>
+  var anchorForId = function (id) {
+    var anchor = document.createElement("a");
+    anchor.className = "header-link";
+    anchor.href      = "#" + id;
+    anchor.innerHTML = "<i class=\"fa fa-link\"></i>";
+    return anchor;
+  };
+
+  var linkifyAnchors = function (level, containingElement) {
+    var headers = containingElement.getElementsByTagName("h" + level);
+    for (var h = 0; h < headers.length; h++) {
+      var header = headers[h];
+
+      if (typeof header.id !== "undefined" && header.id !== "") {
+        header.appendChild(anchorForId(header.id));
+      }
+    }
+  };
+
+  document.onreadystatechange = function () {
+    if (this.readyState === "complete") {
+      var contentBlock = document.getElementsByClassName("post")[0];  //  || document.getElementsByClassName("page")[0] 
+      if (!contentBlock) {
+        return;
+      }
+      for (var level = 1; level <= 6; level++) {
+        linkifyAnchors(level, contentBlock);
+      }
+    }
+  };
+</script>
+
+
+  </body>
+
+</html>

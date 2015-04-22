@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Scan QR Code</title>
+    <meta name="description" content="Simplicity is the ultimate sophistication.
+">
+
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="canonical" href="/ios/2014/12/25/Scan%20QR%20Code.html">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/">Jowyer's Blog</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+          
+          <a class="page-link" href="/contact/">Contact</a>
+          
+        
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Scan QR Code</h1>
+    <p class="post-meta">Dec 25, 2014</p>
+  </header>
+
+  <article class="post-content">
+    <p>iOS 7 给<strong>AV Foundation</strong>添加了不少新的功能，其中就包括今天要谈到的Barcode reading support。</p>
+
+<h2 id="introduction">Introduction</h2>
+
+<h3 id="av-foundation">AV Foundation</h3>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="p">@</span><span class="n">import</span> <span class="n">AVFoundation</span><span class="p">;</span></code></pre></div>
+
+<p>The <strong>AV Foundation</strong> framework provides an Objective-C interface for managing and playing audio-visual media in iOS and OS X applications. </p>
+
+<p>It is a way to manage camera and microphone input, process digital media, and send output to the disk or the screen — a process collectively known as <strong>media graph processing</strong>.</p>
+
+<h3 id="avcapturesession">AVCaptureSession</h3>
+<p>You use an <code>AVCaptureSession</code> object to coordinate the flow of data from AV input devices to outputs. </p>
+
+<p>It is the core media handling class in AV Foundation. It talks to the hardware to retrieve, process, and output video. A capture session wires together inputs and outputs, and controls the format and resolution of the output frames.</p>
+
+<h3 id="avcapturedevice">AVCaptureDevice</h3>
+<p>An <code>AVCaptureDevice</code> object represents a physical capture device and the properties associated with that device. </p>
+
+<p>It encapsulates the physical camera on a device. Modern iPhones have both front and rear cameras, while other devices may only have a single camera.</p>
+
+<h3 id="avcapturedeviceinput">AVCaptureDeviceInput</h3>
+<p>You use an <code>AVCaptureDeviceInput</code> to capture data from an <code>AVCaptureDevice</code> object.</p>
+
+<p>To add an <code>AVCaptureDevice</code> to a session, wrap it in an <code>AVCaptureDeviceInput</code>. A capture session can have multiple inputs and multiple outputs.</p>
+
+<h3 id="avcapturemetadataoutput">AVCaptureMetadataOutput</h3>
+<p>An <code>AVCaptureMetadataOutput</code> object intercepts metadata objects emitted by its associated capture connection and forwards them to a delegate object for processing. You can use instances of this class to process specific types of metadata included with the input data.</p>
+
+<p>It provides a callback to the application when metadata is detected in a video frame. AV Foundation supports two types of metadata: <em>machine readable codes</em> and <em>face detection</em>.</p>
+
+<h3 id="avcapturevideopreviewlayer">AVCaptureVideoPreviewLayer</h3>
+<p><code>AVCaptureVideoPreviewLayer</code> is a subclass of CALayer that you use to display video as it is being captured by an input device.</p>
+
+<p>It provides a mechanism for displaying the current frames flowing through a capture session; it allows you to display the camera output in your UI.</p>
+
+<h2 id="usage">Usage</h2>
+<p>All you need to do is set up an <code>AVCaptureMetaDataOutput</code> as the output of an <code>AVCaptureSession</code>, and implement the <code>captureOutput:didOutputMetadataObjects:fromConnection:</code> method accordingly:</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="p">@</span><span class="n">import</span> <span class="n">AVFoundation</span><span class="p">;</span>
+
+<span class="bp">AVCaptureSession</span> <span class="o">*</span><span class="n">session</span> <span class="o">=</span> <span class="p">[[</span><span class="bp">AVCaptureSession</span> <span class="n">alloc</span><span class="p">]</span> <span class="n">init</span><span class="p">];</span>
+
+<span class="bp">AVCaptureDevice</span> <span class="o">*</span><span class="n">device</span> <span class="o">=</span> <span class="p">[</span><span class="bp">AVCaptureDevice</span> <span class="nl">defaultDeviceWithMediaType</span><span class="p">:</span><span class="n">AVMediaTypeVideo</span><span class="p">];</span>
+
+<span class="bp">NSError</span> <span class="o">*</span><span class="n">error</span> <span class="o">=</span> <span class="nb">nil</span><span class="p">;</span>
+<span class="bp">AVCaptureDeviceInput</span> <span class="o">*</span><span class="n">input</span> <span class="o">=</span> <span class="p">[</span><span class="bp">AVCaptureDeviceInput</span> <span class="nl">deviceInputWithDevice</span><span class="p">:</span><span class="n">device</span>
+                                                                    <span class="nl">error</span><span class="p">:</span><span class="o">&amp;</span><span class="n">error</span><span class="p">];</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">input</span> <span class="o">&amp;&amp;</span> <span class="p">[</span><span class="n">session</span> <span class="nl">canAddInput</span><span class="p">:</span><span class="n">input</span><span class="p">])</span> <span class="p">{</span>
+    <span class="p">[</span><span class="n">session</span> <span class="nl">addInput</span><span class="p">:</span><span class="n">input</span><span class="p">];</span>
+<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;Error: %@&quot;</span><span class="p">,</span> <span class="n">error</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="cm">/* AV Foundation is designed for high throughput and low latency; </span>
+<span class="cm">therefore any processing and analysis tasks should be</span>
+<span class="cm">moved off of the main thread if at all possible.</span>
+<span class="cm">*/</span>
+<span class="kt">dispatch_queue_t</span> <span class="n">metadataQueue</span> <span class="o">=</span> <span class="n">dispatch_queue_create</span><span class="p">(</span><span class="s">&quot;com.jw.metadata&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+
+<span class="bp">AVCaptureMetadataOutput</span> <span class="o">*</span><span class="n">output</span> <span class="o">=</span> <span class="p">[[</span><span class="bp">AVCaptureMetadataOutput</span> <span class="n">alloc</span><span class="p">]</span> <span class="n">init</span><span class="p">];</span>
+<span class="p">[</span><span class="n">output</span> <span class="nl">setMetadataObjectsDelegate</span><span class="p">:</span><span class="nb">self</span> <span class="nl">queue</span><span class="p">:</span><span class="n">metadataQueue</span><span class="p">];</span> <span class="c1">//AVCaptureMetadataOutputObjectsDelegate</span>
+<span class="k">if</span> <span class="p">([</span><span class="n">session</span> <span class="nl">canAddOutput</span><span class="p">:</span><span class="n">output</span><span class="p">])</span> <span class="p">{</span>
+    <span class="p">[</span><span class="n">session</span> <span class="nl">addOutput</span><span class="p">:</span><span class="n">output</span><span class="p">];</span>
+<span class="p">}</span>
+<span class="n">output</span><span class="p">.</span><span class="n">metadataObjectTypes</span> <span class="o">=</span> <span class="n">output</span><span class="p">.</span><span class="n">availableMetadataObjectTypes</span><span class="p">;</span>
+
+<span class="bp">UIView</span> <span class="o">*</span><span class="n">previewView</span> <span class="o">=</span> <span class="p">[[</span><span class="bp">UIView</span> <span class="n">alloc</span><span class="p">]</span> <span class="nl">initWithFrame</span><span class="p">:</span><span class="nb">self</span><span class="p">.</span><span class="n">view</span><span class="p">.</span><span class="n">bounds</span><span class="p">];</span>
+<span class="p">[</span><span class="nb">self</span><span class="p">.</span><span class="n">view</span> <span class="nl">addSubview</span><span class="p">:</span><span class="n">previewView</span><span class="p">];</span>
+    
+
+<span class="bp">AVCaptureVideoPreviewLayer</span> <span class="o">*</span><span class="n">previewLayer</span> <span class="o">=</span> <span class="p">[[</span><span class="bp">AVCaptureVideoPreviewLayer</span> <span class="n">alloc</span><span class="p">]</span> <span class="nl">initWithSession</span><span class="p">:</span><span class="n">session</span><span class="p">];</span>
+<span class="n">previewLayer</span><span class="p">.</span><span class="n">videoGravity</span> <span class="o">=</span> <span class="n">AVLayerVideoGravityResizeAspectFill</span><span class="p">;</span>
+<span class="n">previewLayer</span><span class="p">.</span><span class="n">frame</span> <span class="o">=</span> <span class="n">previewView</span><span class="p">.</span><span class="n">bounds</span><span class="p">;</span>
+<span class="p">[</span><span class="n">previewView</span><span class="p">.</span><span class="n">layer</span> <span class="nl">addSublayer</span><span class="p">:</span><span class="n">previewLayer</span><span class="p">];</span>
+
+<span class="p">[</span><span class="n">session</span> <span class="n">startRunning</span><span class="p">];</span>
+<span class="c1">// Sessions should run only when the view controller is on screen.</span>
+<span class="c1">// [session stopRunning];</span>
+
+<span class="cp">#pragma mark - AVCaptureMetadataOutputObjectsDelegate</span>
+<span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">captureOutput:</span><span class="p">(</span><span class="bp">AVCaptureOutput</span> <span class="o">*</span><span class="p">)</span><span class="nv">captureOutput</span>
+<span class="nf">didOutputMetadataObjects:</span><span class="p">(</span><span class="bp">NSArray</span> <span class="o">*</span><span class="p">)</span><span class="nv">metadataObjects</span>
+       <span class="nf">fromConnection:</span><span class="p">(</span><span class="bp">AVCaptureConnection</span> <span class="o">*</span><span class="p">)</span><span class="nv">connection</span>
+<span class="p">{</span>
+    <span class="bp">NSString</span> <span class="o">*</span><span class="n">codeString</span> <span class="o">=</span> <span class="nb">nil</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="bp">AVMetadataObject</span> <span class="o">*</span><span class="n">metadata</span> <span class="k">in</span> <span class="n">metadataObjects</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">([</span><span class="n">metadata</span> <span class="nl">isKindOfClass</span><span class="p">:</span> <span class="p">[</span><span class="bp">AVMetadataMachineReadableCodeObject</span> <span class="k">class</span><span class="p">]])</span> <span class="p">{</span>
+            <span class="n">codeString</span> <span class="o">=</span> <span class="p">[(</span><span class="bp">AVMetadataMachineReadableCodeObject</span> <span class="o">*</span><span class="p">)</span><span class="n">metadata</span> <span class="n">stringValue</span><span class="p">];</span>
+            <span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;codeString : %@&quot;</span><span class="p">,</span> <span class="n">codeString</span><span class="p">);</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    
+    <span class="n">dispatch_sync</span><span class="p">(</span><span class="n">dispatch_get_main_queue</span><span class="p">(),</span> <span class="o">^</span><span class="p">{</span>
+        <span class="c1">// ...</span>
+    <span class="p">});</span>
+<span class="p">}</span></code></pre></div>
+
+<h2 id="demo">Demo</h2>
+<p>做了一个类似微信扫码的demo，放在<a href="https://github.com/Jowyer/QRCodeDemo">GitHub</a>上了。</p>
+
+<h2 id="reference">Reference</h2>
+<p><a href="http://www.raywenderlich.com/store/ios-7-by-tutorials">RayWenderlich</a></p>
+
+<p><a href="http://nshipster.com/ios7/">NSHipster</a></p>
+
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>Copyright © 2015 - Jowyer Wang</li> 
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        
+      </div>
+
+      <div class="footer-col  footer-col-3">
+        <p class="text">Simplicity is the ultimate sophistication.
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+    <script>
+  var anchorForId = function (id) {
+    var anchor = document.createElement("a");
+    anchor.className = "header-link";
+    anchor.href      = "#" + id;
+    anchor.innerHTML = "<i class=\"fa fa-link\"></i>";
+    return anchor;
+  };
+
+  var linkifyAnchors = function (level, containingElement) {
+    var headers = containingElement.getElementsByTagName("h" + level);
+    for (var h = 0; h < headers.length; h++) {
+      var header = headers[h];
+
+      if (typeof header.id !== "undefined" && header.id !== "") {
+        header.appendChild(anchorForId(header.id));
+      }
+    }
+  };
+
+  document.onreadystatechange = function () {
+    if (this.readyState === "complete") {
+      var contentBlock = document.getElementsByClassName("post")[0];  //  || document.getElementsByClassName("page")[0] 
+      if (!contentBlock) {
+        return;
+      }
+      for (var level = 1; level <= 6; level++) {
+        linkifyAnchors(level, contentBlock);
+      }
+    }
+  };
+</script>
+
+
+  </body>
+
+</html>
